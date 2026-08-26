@@ -90,16 +90,85 @@ body {
   text-decoration-thickness: 2px;
 }
 
-.account {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--muted);
+/* Бургер-меню */
+.menu-wrap {
+  position: relative;
 }
 
-.email {
-  max-width: 160px;
+.burger {
+  font-size: 18px;
+  line-height: 1.2;
+  padding: 4px 8px;
+}
+
+.menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 210px;
+  padding: 6px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.1);
+  z-index: 20;
+}
+
+@media (prefers-color-scheme: dark) {
+  .menu {
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.45);
+  }
+}
+
+.menu-langs {
+  display: flex;
+  gap: 4px;
+}
+
+.menu-langs .lang {
+  flex: 1;
+  padding: 8px 10px;
+  font-size: 14px;
+  border-radius: 8px;
+}
+
+.menu-langs .lang:hover {
+  background: var(--line);
+}
+
+.menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--ink);
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.menu-item:hover {
+  background: var(--line);
+}
+
+.menu-item.warn {
+  color: var(--warn);
+  font-weight: 600;
+}
+
+.menu-sep {
+  height: 1px;
+  background: var(--line);
+  margin: 6px 4px;
+}
+
+.menu-email {
+  padding: 8px 10px 2px;
+  color: var(--muted);
+  font-size: 13px;
+  max-width: 220px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -329,12 +398,3 @@ input[type="datetime-local"] {
   color: var(--accent);
 }
 
-.footer {
-  margin-top: 32px;
-  text-align: center;
-}
-
-.hint {
-  color: var(--muted);
-  font-size: 12px;
-}

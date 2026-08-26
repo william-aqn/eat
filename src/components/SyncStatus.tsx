@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { getAuthState, login, logout, subscribeAuth } from "../auth";
+import { getAuthState, subscribeAuth } from "../auth";
 import { getLocale, t, useLocale } from "../i18n";
 import { getSyncState, subscribeSync, type SyncStatus as Status } from "../sync";
 
@@ -21,25 +21,16 @@ const DOT_LABEL: Record<Status, "statusSynced" | "statusSyncing" | "statusError"
   error: "statusError"
 };
 
+/** Точка статуса синхронизации в шапке; управление аккаунтом — в бургер-меню */
 export default function SyncStatus() {
   useLocale();
   const auth = useSyncExternalStore(subscribeAuth, getAuthState);
   const sync = useSyncExternalStore(subscribeSync, getSyncState);
 
-  if (auth.status === "signedOut") {
-    return (
-      <button className="btn-ghost" title={t("signInTitle")} onClick={login}>
-        {t("signIn")}
-      </button>
-    );
-  }
+  if (auth.status === "signedOut") return null;
 
   if (auth.status === "needsReauth") {
-    return (
-      <button className="btn-ghost warn" title={t("signInTitle")} onClick={login}>
-        {t("signInAgain")}
-      </button>
-    );
+    return <span className="dot err" role="status" aria-label={t("signInAgain")} title={t("signInAgain")} />;
   }
 
   const title = sync.lastSyncedAt
@@ -47,12 +38,11 @@ export default function SyncStatus() {
     : t(DOT_LABEL[sync.status]);
 
   return (
-    <span className="account" title={title}>
-      <span className={`dot ${DOT_CLASS[sync.status]}`} role="status" aria-label={t(DOT_LABEL[sync.status])} />
-      <span className="email">{auth.email}</span>
-      <button className="btn-ghost" onClick={() => void logout()}>
-        {t("signOut")}
-      </button>
-    </span>
+    <span
+      className={`dot ${DOT_CLASS[sync.status]}`}
+      role="status"
+      aria-label={t(DOT_LABEL[sync.status])}
+      title={title}
+    />
   );
 }

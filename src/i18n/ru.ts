@@ -29,7 +29,8 @@ const ru = {
   statusSyncing: "Синхронизация…",
   statusError: "Ошибка синхронизации",
   statusOffline: "Офлайн — изменения сохраняются локально",
-  ctrlEnterHint: "Ctrl+Enter — добавить"
+  ctrlEnterHint: "Ctrl+Enter — добавить",
+  menu: "Меню"
 } satisfies Dict;
 
 export default ru;

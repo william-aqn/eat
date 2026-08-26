@@ -27,7 +27,8 @@ const en = {
   statusSyncing: "Syncing…",
   statusError: "Sync error",
   statusOffline: "Offline — changes are saved locally",
-  ctrlEnterHint: "Ctrl+Enter — add"
+  ctrlEnterHint: "Ctrl+Enter — add",
+  menu: "Menu"
 };
 
 export type Dict = typeof en;
