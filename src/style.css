@@ -324,6 +324,11 @@ input[type="datetime-local"] {
   cursor: pointer;
 }
 
+.notice.ok {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .footer {
   margin-top: 32px;
   text-align: center;

@@ -47,6 +47,24 @@ export function mergeEntries(local: Entry[], remote: Entry[]): MergeResult {
   return { merged, remoteWins, pushNeeded };
 }
 
+/**
+ * План импорта резервной копии поверх локальных данных:
+ * новые id добавляются как есть, более свежие импортированные версии побеждают (LWW),
+ * а живая запись из бэкапа поверх локального tombstone ВОССТАНАВЛИВАЕТСЯ
+ * со свежим updatedAt (импорт — явное намерение вернуть данные; свежий
+ * updatedAt разнесёт восстановление по остальным устройствам через sync).
+ */
+export function planImport(local: Entry[], imported: Entry[], now: number): { writes: Entry[] } {
+  const byId = new Map(local.map((e) => [e.id, e]));
+  const writes: Entry[] = [];
+  for (const e of imported) {
+    const cur = byId.get(e.id);
+    if (!cur || e.updatedAt > cur.updatedAt) writes.push(e);
+    else if (cur.deleted && !e.deleted) writes.push({ ...e, deleted: 0, updatedAt: now });
+  }
+  return { writes };
+}
+
 export function purgeOldTombstones(
   entries: Entry[],
   now: number

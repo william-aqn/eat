@@ -1,5 +1,6 @@
 import * as db from "./db";
 import type { Entry } from "./db";
+import { planImport } from "./merge";
 
 let snapshot: Entry[] = [];
 const listeners = new Set<() => void>();
@@ -54,6 +55,17 @@ export async function editEntry(id: string, patch: { text?: string; at?: number 
   if (!cur || cur.deleted) return;
   await db.putEntry({ ...cur, ...patch, updatedAt: Date.now() });
   await afterMutate();
+}
+
+/** Импорт резервной копии: слияние с локальными данными, см. planImport */
+export async function importEntries(imported: Entry[]): Promise<{ applied: number }> {
+  const local = await db.allEntries(true);
+  const { writes } = planImport(local, imported, Date.now());
+  if (writes.length) {
+    await db.putEntries(writes);
+    await afterMutate();
+  }
+  return { applied: writes.length };
 }
 
 export async function removeEntry(id: string): Promise<void> {

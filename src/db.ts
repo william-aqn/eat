@@ -42,6 +42,12 @@ export async function putEntry(e: Entry): Promise<void> {
   await (await db()).put("entries", e);
 }
 
+export async function putEntries(list: Entry[]): Promise<void> {
+  const tx = (await db()).transaction("entries", "readwrite");
+  for (const e of list) await tx.store.put(e);
+  await tx.done;
+}
+
 /**
  * Применяет победившие удалённые версии одной транзакцией, перепроверяя updatedAt:
  * правка, сделанная во время синхронизации, не будет затёрта устаревшими данными.

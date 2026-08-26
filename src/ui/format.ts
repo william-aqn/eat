@@ -50,6 +50,38 @@ export function fromLocalInput(value: string): number {
   return new Date(value).getTime();
 }
 
+/**
+ * Разбор файла импорта. Принимает формат экспорта ({exportedAt, entries})
+ * или голый массив записей; некорректные записи пропускаются.
+ */
+export function parseImportFile(text: string): { entries: Entry[]; skipped: number } {
+  const data: unknown = JSON.parse(text);
+  const raw = Array.isArray(data) ? data : (data as { entries?: unknown } | null)?.entries;
+  if (!Array.isArray(raw)) throw new Error("bad_format");
+
+  const entries: Entry[] = [];
+  let skipped = 0;
+  for (const item of raw) {
+    const r = item as Partial<Entry> | null;
+    if (
+      r &&
+      typeof r.id === "string" &&
+      r.id &&
+      typeof r.text === "string" &&
+      typeof r.at === "number" &&
+      Number.isFinite(r.at)
+    ) {
+      const updatedAt =
+        typeof r.updatedAt === "number" && Number.isFinite(r.updatedAt) ? r.updatedAt : r.at;
+      entries.push({ id: r.id, text: r.text, at: r.at, updatedAt, deleted: r.deleted ? 1 : 0 });
+    } else {
+      skipped++;
+    }
+  }
+  if (!entries.length && raw.length) throw new Error("no_valid_entries");
+  return { entries, skipped };
+}
+
 export function exportJson(entries: Entry[]): void {
   const blob = new Blob(
     [JSON.stringify({ exportedAt: new Date().toISOString(), entries }, null, 2)],
