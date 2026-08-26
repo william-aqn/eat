@@ -55,8 +55,17 @@ export default function EntryForm() {
           }}
         />
         <span className="spacer" />
-        <button className="btn-primary" type="submit" disabled={!text.trim()} title={t("ctrlEnterHint")}>
-          {t("add")}
+        <button
+          className="btn-primary"
+          type="submit"
+          disabled={!text.trim()}
+          title={t("ctrlEnterHint")}
+          aria-label={t("add")}
+        >
+          <span className="add-label">{t("add")}</span>
+          <span className="add-icon" aria-hidden="true">
+            +
+          </span>
         </button>
       </div>
     </form>

@@ -54,26 +54,30 @@ export default function EntryItem({ entry }: { entry: Entry }) {
 
   return (
     <li className="entry">
-      <time className="entry-time">{formatTime(entry.at, locale)}</time>
+      {/* время встроено в линию-разделитель, текст записи занимает всю ширину */}
+      <div className="entry-head">
+        <time className="entry-time">{formatTime(entry.at, locale)}</time>
+        <span className="entry-rule" aria-hidden="true" />
+        <div className="entry-actions">
+          <button className="icon-btn" aria-label={t("edit")} title={t("edit")} onClick={startEdit}>
+            ✎
+          </button>
+          <button
+            className="icon-btn danger"
+            aria-label={t("delete")}
+            title={t("delete")}
+            onClick={() => void remove()}
+          >
+            ✕
+          </button>
+        </div>
+      </div>
       <div className="entry-text">
         {lines.map((line, i) => (
           <div key={i} className="entry-line">
             {line}
           </div>
         ))}
-      </div>
-      <div className="entry-actions">
-        <button className="icon-btn" aria-label={t("edit")} title={t("edit")} onClick={startEdit}>
-          ✎
-        </button>
-        <button
-          className="icon-btn danger"
-          aria-label={t("delete")}
-          title={t("delete")}
-          onClick={() => void remove()}
-        >
-          ✕
-        </button>
       </div>
     </li>
   );

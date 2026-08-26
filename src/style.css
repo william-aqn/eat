@@ -199,6 +199,27 @@ button {
   cursor: default;
 }
 
+.add-icon {
+  display: none;
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Узкий экран: полный текст кнопки не влезает в строку с датой — остаётся «+» */
+@media (max-width: 430px) {
+  .add-label {
+    display: none;
+  }
+
+  .add-icon {
+    display: inline;
+  }
+
+  .btn-primary {
+    padding: 8px 14px;
+  }
+}
+
 .btn-ghost {
   background: none;
   border: none;
@@ -291,25 +312,28 @@ input[type="datetime-local"] {
 }
 
 .entry {
-  display: flex;
-  gap: 12px;
-  padding: 10px 14px;
-  align-items: flex-start;
+  padding: 8px 14px 10px;
 }
 
-.entry + .entry {
+/* Шапка записи: время встроено в линию-разделитель, справа — действия */
+.entry-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.entry-rule {
+  flex: 1;
   border-top: 1px solid var(--line);
 }
 
 .entry-time {
   color: var(--muted);
   font-size: 13px;
-  padding-top: 2px;
   flex: none;
 }
 
 .entry-text {
-  flex: 1;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -356,10 +380,6 @@ input[type="datetime-local"] {
 
 .icon-btn.danger:hover {
   color: var(--danger);
-}
-
-.entry.editing {
-  display: block;
 }
 
 .entry.editing textarea {
@@ -465,8 +485,8 @@ input[type="datetime-local"] {
     padding: 1.5mm 0;
   }
 
-  .entry + .entry {
-    border-top: 1px solid #ddd;
+  .entry-rule {
+    border-top-color: #ccc;
   }
 
   .entry-line + .entry-line {
