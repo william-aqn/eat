@@ -29,6 +29,7 @@ const en = {
   statusOffline: "Offline — changes are saved locally",
   ctrlEnterHint: "Ctrl+Enter — add",
   menu: "Menu",
+  print: "Print",
   printedOn: "Printed"
 };
 

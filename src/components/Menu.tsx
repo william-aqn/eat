@@ -124,6 +124,16 @@ export default function Menu({ onNotice }: { onNotice: (n: Notice) => void }) {
           >
             {t("importJson")}
           </button>
+          <button
+            className="menu-item"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false);
+              window.print();
+            }}
+          >
+            {t("print")}
+          </button>
         </div>
       )}
     </div>

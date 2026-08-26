@@ -31,6 +31,7 @@ const ru = {
   statusOffline: "Офлайн — изменения сохраняются локально",
   ctrlEnterHint: "Ctrl+Enter — добавить",
   menu: "Меню",
+  print: "Печать",
   printedOn: "Распечатано"
 } satisfies Dict;
 
