@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { flushSync } from "react-dom";
 import DayGroup from "./components/DayGroup";
 import EntryForm from "./components/EntryForm";
+import Footer from "./components/Footer";
 import Header from "./components/Header";
 import { t, useLocale, type Dict } from "./i18n";
 import { getEntriesSnapshot, subscribeEntries } from "./store";
@@ -30,26 +31,29 @@ export default function App() {
   const [notice, setNotice] = useState<Notice | null>(null);
 
   return (
-    <div className="app">
-      <Header onNotice={setNotice} />
-      <p className="print-date">
-        {t("printedOn")}: {new Date().toLocaleString(locale)}
-      </p>
-      {notice && (
-        <div
-          className={"notice" + (notice.tone === "ok" ? " ok" : "")}
-          role="alert"
-          onClick={() => setNotice(null)}
-        >
-          {t(notice.key, notice.vars)}
-        </div>
-      )}
-      <EntryForm />
-      {groups.length === 0 ? (
-        <p className="empty">{t("emptyState")}</p>
-      ) : (
-        groups.map((g) => <DayGroup key={g.day} day={g.day} items={g.items} />)
-      )}
-    </div>
+    <>
+      <div className="app">
+        <Header onNotice={setNotice} />
+        <p className="print-date">
+          {t("printedOn")}: {new Date().toLocaleString(locale)}
+        </p>
+        {notice && (
+          <div
+            className={"notice" + (notice.tone === "ok" ? " ok" : "")}
+            role="alert"
+            onClick={() => setNotice(null)}
+          >
+            {t(notice.key, notice.vars)}
+          </div>
+        )}
+        <EntryForm />
+        {groups.length === 0 ? (
+          <p className="empty">{t("emptyState")}</p>
+        ) : (
+          groups.map((g) => <DayGroup key={g.day} day={g.day} items={g.items} />)
+        )}
+      </div>
+      <Footer />
+    </>
   );
 }

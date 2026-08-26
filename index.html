@@ -3,15 +3,39 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="description" content="Дневник питания — работает офлайн, данные хранятся у вас" />
+    <meta
+      name="description"
+      content="Бесплатный дневник питания: записывайте, что и когда вы съели. Работает офлайн, данные хранятся у вас, синхронизация с Google Диском и версия для печати."
+    />
     <meta name="theme-color" content="#151515" />
-    <meta name="robots" content="noindex, nofollow" />
+    <link rel="canonical" href="https://eat.x-crm.in/" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
-    <title>Дневник питания</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Дневник питания" />
+    <meta property="og:description" content="Бесплатный дневник питания: работает офлайн, данные хранятся у вас." />
+    <meta property="og:url" content="https://eat.x-crm.in/" />
+    <meta property="og:image" content="https://eat.x-crm.in/icons/icon-512.png" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta name="twitter:card" content="summary" />
+    <title>Дневник питания — что и когда вы съели</title>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Дневник питания",
+        "url": "https://eat.x-crm.in/",
+        "description": "Бесплатный дневник питания: работает офлайн, данные хранятся в браузере, опциональная синхронизация с Google Диском.",
+        "applicationCategory": "HealthApplication",
+        "operatingSystem": "Any",
+        "inLanguage": ["ru", "en"],
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>Дневник питания работает в браузере — включите JavaScript.</noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -32,8 +32,7 @@ const en = {
   menu: "Menu",
   print: "Print",
   installApp: "Install app",
-  printedOn: "Printed",
-  backToBlog: "To the blog"
+  printedOn: "Printed"
 };
 
 export type Dict = typeof en;

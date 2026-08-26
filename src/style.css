@@ -8,7 +8,8 @@
   --btn-bg: rgba(228, 196, 159, 0.15);
   --line: rgba(228, 196, 159, 0.3);
   --line-soft: rgba(228, 196, 159, 0.15);
-  --link: #63c0f5;
+  --footer-text: rgba(228, 196, 159, 0.4);
+  --footer-link: rgba(228, 196, 159, 0.5);
   --danger: #ac4142;
   --warn: #f4bf75;
   color-scheme: dark;
@@ -20,6 +21,11 @@
 
 body {
   margin: 0;
+  /* колонка на всю высоту: футер прижат к низу даже при пустом дневнике */
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
   background: var(--bg);
   color: var(--ink);
   font:
@@ -31,10 +37,19 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* React монтируется в #root — колонка пробрасывается через него */
+#root {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 .app {
+  width: 100%;
   max-width: 560px;
   margin: 0 auto;
-  padding: 20px 16px 72px;
+  padding: 20px 16px 24px;
+  flex: 1;
 }
 
 /* Шапка */
@@ -59,14 +74,6 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-/* Ссылка обратно на блог — цвет и свечение ссылок hacker-темы */
-.blog-link {
-  font-size: 13px;
-  color: var(--link);
-  text-decoration: none;
-  text-shadow: 0 0 5px rgba(104, 182, 255, 0.5);
 }
 
 .lang {
@@ -415,6 +422,30 @@ input[type="datetime-local"] {
   color: var(--accent);
 }
 
+/* Футер как на блоге x-crm.in */
+.site-footer {
+  margin-top: 40px;
+  padding: 20px 0;
+  border-top: 1px dashed var(--line);
+  text-align: center;
+}
+
+.site-footer p {
+  margin: 0;
+  color: var(--footer-text);
+  font-size: 14px;
+}
+
+.site-footer a {
+  color: var(--footer-link);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.site-footer a:hover {
+  color: var(--accent);
+}
+
 /* ---------- Версия для печати (Ctrl+P) ---------- */
 @page {
   margin: 15mm;
@@ -427,6 +458,7 @@ input[type="datetime-local"] {
   .entry-form,
   .notice,
   .entry-actions,
+  .site-footer,
   .empty {
     display: none !important;
   }
@@ -437,6 +469,8 @@ input[type="datetime-local"] {
 
   /* цвета задаём явно: тёмная тема не должна попасть на бумагу */
   body {
+    /* flex-колонка мешает разбивке на страницы при печати */
+    display: block;
     background: #fff;
     color: #000;
     font-size: 11pt;

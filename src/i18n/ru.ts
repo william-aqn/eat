@@ -34,8 +34,7 @@ const ru = {
   menu: "Меню",
   print: "Печать",
   installApp: "Установить приложение",
-  printedOn: "Распечатано",
-  backToBlog: "На блог"
+  printedOn: "Распечатано"
 } satisfies Dict;
 
 export default ru;
