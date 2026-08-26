@@ -1,0 +1,30 @@
+const en = {
+  appTitle: "Food diary",
+  addPlaceholder: "What did you eat?",
+  add: "Add",
+  timeLabel: "Meal time",
+  today: "Today",
+  yesterday: "Yesterday",
+  edit: "Edit",
+  delete: "Delete",
+  save: "Save",
+  cancel: "Cancel",
+  deleteConfirm: "Delete this entry?",
+  signIn: "Sign in",
+  signInTitle: "Sign in with Google to sync your entries between devices",
+  signOut: "Sign out",
+  signInAgain: "Sign in again",
+  emptyState: "Nothing here yet. Log your first meal.",
+  exportJson: "Export JSON",
+  authDenied: "Sign-in was cancelled",
+  authError: "Sign-in failed. Please try again.",
+  lastSync: "Synced: {time}",
+  statusSynced: "Synced",
+  statusSyncing: "Syncing…",
+  statusError: "Sync error",
+  statusOffline: "Offline — changes are saved locally",
+  ctrlEnterHint: "Ctrl+Enter — add"
+};
+
+export type Dict = typeof en;
+export default en;
