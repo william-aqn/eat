@@ -30,7 +30,8 @@ const ru = {
   ctrlEnterHint: "Ctrl+Enter — добавить",
   menu: "Меню",
   print: "Печать",
-  printedOn: "Распечатано"
+  printedOn: "Распечатано",
+  backToBlog: "На блог"
 } satisfies Dict;
 
 export default ru;

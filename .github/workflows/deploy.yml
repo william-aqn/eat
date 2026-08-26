@@ -32,10 +32,8 @@ jobs:
 
       - run: npm test
 
-      # Проект на GitHub Pages живёт по пути /<репозиторий>/ (кроме репозитория <user>.github.io)
+      # Кастомный домен eat.x-crm.in (public/CNAME) — сайт живёт в корне, base по умолчанию "/"
       - run: npm run build
-        env:
-          VITE_BASE: ${{ endsWith(github.event.repository.name, '.github.io') && '/' || format('/{0}/', github.event.repository.name) }}
 
       - uses: actions/configure-pages@v6
 

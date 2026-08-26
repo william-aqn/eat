@@ -3,13 +3,15 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import sharp from "sharp";
 
-const ACCENT = "#4a7c59";
+// Палитра темы блога: тёмный квадрат, песочный глиф
+const BG = "#151515";
+const ACCENT = "#e4c49f";
 
 const glyph = (scale = 1) => `
   <g transform="translate(256 256) scale(${scale}) translate(-256 -256)"
-     fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round">
+     fill="none" stroke="${ACCENT}" stroke-width="18" stroke-linecap="round">
     <circle cx="256" cy="272" r="80"/>
-    <circle cx="256" cy="272" r="26" fill="#ffffff" stroke="none"/>
+    <circle cx="256" cy="272" r="26" fill="${ACCENT}" stroke="none"/>
     <path d="M96 150v46"/>
     <path d="M136 150v46"/>
     <path d="M116 150v212"/>
@@ -18,7 +20,7 @@ const glyph = (scale = 1) => `
 
 const svg = (rx, scale) =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">` +
-  `<rect width="512" height="512" rx="${rx}" fill="${ACCENT}"/>${glyph(scale)}</svg>`;
+  `<rect width="512" height="512" rx="${rx}" fill="${BG}"/>${glyph(scale)}</svg>`;
 
 await mkdir("public/icons", { recursive: true });
 

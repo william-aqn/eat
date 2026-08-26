@@ -42,7 +42,7 @@ npm run icons      # перегенерировать PNG-иконки из SVG-
 4. **Data Access → Add scopes**: `.../auth/drive.appdata`, `.../auth/userinfo.email`, `openid` (все несенситивные).
 5. **Clients → Create client → Web application** → **Authorized JavaScript origins** (именно origins, redirect URI не нужны):
    - `http://localhost:5173` и `http://localhost:4173` — для разработки
-   - `https://<ваш-логин>.github.io` — боевой адрес
+   - `https://eat.x-crm.in` — боевой адрес
 6. **Audience → Publish App** («In production»). Верификация не требуется — scopes несенситивные.
 7. Скопируйте **Client ID** в файл `.env`:
    ```
@@ -50,17 +50,14 @@ npm run icons      # перегенерировать PNG-иконки из SVG-
    ```
    Client ID — публичный идентификатор, а не секрет: он попадает в бандл, это нормально для браузерного OAuth. Доступ ограничен списком origins из шага 5. Файл `.env` коммитится в репозиторий — иначе сборка в GitHub Actions не будет знать Client ID.
 
-### B. GitHub Pages
+### B. GitHub Pages и домен eat.x-crm.in
 
-1. Создайте репозиторий на GitHub и запушьте проект:
-   ```bash
-   git remote add origin https://github.com/<вы>/<репозиторий>.git
-   ```
-   ```bash
-   git push -u origin main
-   ```
-2. Repo → **Settings → Pages → Source: GitHub Actions**.
-3. Готово: каждый push в `main` прогоняет тесты, собирает и публикует сайт на `https://<вы>.github.io/<репозиторий>/`.
+1. У DNS-провайдера домена `x-crm.in` добавьте CNAME-запись: `eat` → `william-aqn.github.io`.
+2. Repo → **Settings → Pages → Source: GitHub Actions**, Custom domain: `eat.x-crm.in`.
+   Дождитесь проверки DNS и включите **Enforce HTTPS**.
+3. Готово: каждый push в `main` прогоняет тесты, собирает и публикует сайт на `https://eat.x-crm.in`.
+
+Домен продублирован в `public/CNAME`: артефакт деплоя перезаписывает содержимое Pages целиком, и без этого файла кастомный домен слетал бы при каждой публикации. Там же `public/robots.txt` — личный дневник не нужен в поиске.
 
 Если адрес отличается от указанного в шаге A5, добавьте его в Authorized JavaScript origins.
 

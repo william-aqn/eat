@@ -28,7 +28,8 @@ const en = {
   ctrlEnterHint: "Ctrl+Enter — add",
   menu: "Menu",
   print: "Print",
-  printedOn: "Printed"
+  printedOn: "Printed",
+  backToBlog: "To the blog"
 };
 
 export type Dict = typeof en;

@@ -1,28 +1,16 @@
 :root {
-  --bg: #faf8f3;
-  --card: #ffffff;
-  --ink: #23251f;
-  --muted: #8a8f84;
-  --accent: #4a7c59;
-  --accent-ink: #ffffff;
-  --line: #e7e4da;
-  --danger: #b3564d;
-  --warn: #a8762a;
-  color-scheme: light dark;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #171814;
-    --card: #1f211c;
-    --ink: #e8e6df;
-    --muted: #8f948a;
-    --accent: #7fae8e;
-    --accent-ink: #14251a;
-    --line: #2d2f29;
-    --danger: #d08a83;
-    --warn: #d4a95c;
-  }
+  /* Палитра темы блога (pages-themes/hacker) + акцент Crimson.Lab */
+  --bg: #151515;
+  --card: rgba(228, 196, 159, 0.05);
+  --ink: #eaeaea;
+  --muted: rgba(228, 196, 159, 0.6);
+  --accent: #e4c49f;
+  --btn-bg: rgba(228, 196, 159, 0.15);
+  --line: rgba(228, 196, 159, 0.3);
+  --link: #63c0f5;
+  --danger: #ac4142;
+  --warn: #f4bf75;
+  color-scheme: dark;
 }
 
 * {
@@ -34,11 +22,11 @@ body {
   background: var(--bg);
   color: var(--ink);
   font:
-    16px/1.5 system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+    16px/1.5 Monaco,
+    "Bitstream Vera Sans Mono",
+    "Lucida Console",
+    Terminal,
+    monospace;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -62,6 +50,7 @@ body {
   font-size: 20px;
   font-weight: 650;
   margin: 0;
+  color: var(--accent);
   letter-spacing: -0.01em;
 }
 
@@ -69,6 +58,14 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+/* Ссылка обратно на блог — цвет и свечение ссылок hacker-темы */
+.blog-link {
+  font-size: 13px;
+  color: var(--link);
+  text-decoration: none;
+  text-shadow: 0 0 5px rgba(104, 182, 255, 0.5);
 }
 
 .lang {
@@ -107,17 +104,10 @@ body {
   top: calc(100% + 8px);
   min-width: 210px;
   padding: 6px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 0.1);
+  background: var(--bg);
+  border: 1px dashed var(--line);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.45);
   z-index: 20;
-}
-
-@media (prefers-color-scheme: dark) {
-  .menu {
-    box-shadow: 0 8px 24px rgb(0 0 0 / 0.45);
-  }
 }
 
 .menu-langs {
@@ -129,11 +119,10 @@ body {
   flex: 1;
   padding: 8px 10px;
   font-size: 14px;
-  border-radius: 8px;
 }
 
 .menu-langs .lang:hover {
-  background: var(--line);
+  background: var(--btn-bg);
 }
 
 .menu-item {
@@ -144,13 +133,12 @@ body {
   border: none;
   color: var(--ink);
   padding: 8px 10px;
-  border-radius: 8px;
   font-size: 14px;
   cursor: pointer;
 }
 
 .menu-item:hover {
-  background: var(--line);
+  background: var(--btn-bg);
 }
 
 .menu-item.warn {
@@ -196,10 +184,9 @@ button {
 }
 
 .btn-primary {
-  background: var(--accent);
-  color: var(--accent-ink);
-  border: none;
-  border-radius: 10px;
+  background: var(--btn-bg);
+  color: var(--accent);
+  border: 1px solid var(--accent);
   padding: 8px 18px;
   font-weight: 600;
   cursor: pointer;
@@ -216,13 +203,12 @@ button {
   color: var(--muted);
   cursor: pointer;
   padding: 4px 6px;
-  border-radius: 8px;
   font-size: 13px;
 }
 
 .btn-ghost:hover {
   color: var(--ink);
-  background: var(--line);
+  background: var(--btn-bg);
 }
 
 .btn-ghost.warn {
@@ -233,8 +219,7 @@ button {
 /* Форма добавления */
 .entry-form {
   background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 14px;
+  border: 1px dashed var(--line);
   padding: 12px;
   margin-bottom: 28px;
 }
@@ -267,7 +252,6 @@ input[type="datetime-local"] {
   border: 1px solid var(--line);
   background: var(--bg);
   color: var(--ink);
-  border-radius: 8px;
   padding: 6px 8px;
   font: inherit;
   font-size: 13px;
@@ -297,9 +281,7 @@ input[type="datetime-local"] {
   margin: 0;
   padding: 0;
   background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  overflow: hidden;
+  border: 1px dashed var(--line);
 }
 
 .entry {
@@ -316,7 +298,6 @@ input[type="datetime-local"] {
 .entry-time {
   color: var(--muted);
   font-size: 13px;
-  font-variant-numeric: tabular-nums;
   padding-top: 2px;
   flex: none;
 }
@@ -350,7 +331,6 @@ input[type="datetime-local"] {
   border: none;
   color: var(--muted);
   cursor: pointer;
-  border-radius: 6px;
   padding: 2px 6px;
   font-size: 14px;
   line-height: 1.4;
@@ -358,7 +338,7 @@ input[type="datetime-local"] {
 
 .icon-btn:hover {
   color: var(--ink);
-  background: var(--line);
+  background: var(--btn-bg);
 }
 
 .icon-btn.danger:hover {
@@ -371,7 +351,6 @@ input[type="datetime-local"] {
 
 .entry.editing textarea {
   border: 1px solid var(--line);
-  border-radius: 8px;
   padding: 8px;
 }
 
@@ -392,7 +371,6 @@ input[type="datetime-local"] {
   background: var(--card);
   border: 1px solid var(--warn);
   color: var(--warn);
-  border-radius: 10px;
   padding: 8px 12px;
   font-size: 14px;
   margin-bottom: 16px;
@@ -424,7 +402,7 @@ input[type="datetime-local"] {
     display: inline;
   }
 
-  /* цвета задаём явно: системная тёмная тема не должна попасть на бумагу */
+  /* цвета задаём явно: тёмная тема не должна попасть на бумагу */
   body {
     background: #fff;
     color: #000;
@@ -467,7 +445,6 @@ input[type="datetime-local"] {
   .day-list {
     background: none;
     border: none;
-    border-radius: 0;
   }
 
   .entry {
@@ -487,4 +464,3 @@ input[type="datetime-local"] {
     color: #000;
   }
 }
-
