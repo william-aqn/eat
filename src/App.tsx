@@ -1,4 +1,5 @@
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { flushSync } from "react-dom";
 import DayGroup from "./components/DayGroup";
 import EntryForm from "./components/EntryForm";
 import Header from "./components/Header";
@@ -13,9 +14,17 @@ export type Notice = {
 };
 
 export default function App() {
-  useLocale();
+  const locale = useLocale();
   const entries = useSyncExternalStore(subscribeEntries, getEntriesSnapshot);
   const groups = useMemo(() => groupByDay(entries), [entries]);
+
+  // Перед печатью синхронно перерисовываем, чтобы «Распечатано: …» было актуальным
+  const [, bump] = useState(0);
+  useEffect(() => {
+    const onBeforePrint = () => flushSync(() => bump((x) => x + 1));
+    window.addEventListener("beforeprint", onBeforePrint);
+    return () => window.removeEventListener("beforeprint", onBeforePrint);
+  }, []);
 
   // Разовые уведомления: после OAuth-редиректа (/?auth=denied|error) и результат импорта
   const [notice, setNotice] = useState<Notice | null>(() => {
@@ -27,6 +36,9 @@ export default function App() {
   return (
     <div className="app">
       <Header onNotice={setNotice} />
+      <p className="print-date">
+        {t("printedOn")}: {new Date().toLocaleString(locale)}
+      </p>
       {notice && (
         <div
           className={"notice" + (notice.tone === "ok" ? " ok" : "")}

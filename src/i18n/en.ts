@@ -28,7 +28,8 @@ const en = {
   statusError: "Sync error",
   statusOffline: "Offline — changes are saved locally",
   ctrlEnterHint: "Ctrl+Enter — add",
-  menu: "Menu"
+  menu: "Menu",
+  printedOn: "Printed"
 };
 
 export type Dict = typeof en;

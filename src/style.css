@@ -382,6 +382,12 @@ input[type="datetime-local"] {
   padding: 32px 0;
 }
 
+/* Элементы, видимые только на печати */
+.print-only,
+.print-date {
+  display: none;
+}
+
 .notice {
   background: var(--card);
   border: 1px solid var(--warn);
@@ -396,5 +402,89 @@ input[type="datetime-local"] {
 .notice.ok {
   border-color: var(--accent);
   color: var(--accent);
+}
+
+/* ---------- Версия для печати (Ctrl+P) ---------- */
+@page {
+  margin: 15mm;
+}
+
+@media print {
+  /* прячем оболочку: форму, меню, статус, уведомления, кнопки действий */
+  .screen-only,
+  .header-right,
+  .entry-form,
+  .notice,
+  .entry-actions,
+  .empty {
+    display: none !important;
+  }
+
+  .print-only {
+    display: inline;
+  }
+
+  /* цвета задаём явно: системная тёмная тема не должна попасть на бумагу */
+  body {
+    background: #fff;
+    color: #000;
+    font-size: 11pt;
+  }
+
+  .app {
+    max-width: none;
+    padding: 0;
+  }
+
+  .header {
+    margin-bottom: 2mm;
+  }
+
+  .header h1 {
+    font-size: 16pt;
+    color: #000;
+  }
+
+  .print-date {
+    display: block;
+    margin: 0 0 6mm;
+    font-size: 9pt;
+    color: #555;
+  }
+
+  .day {
+    margin-bottom: 5mm;
+  }
+
+  .day-label {
+    color: #000;
+    border-bottom: 1px solid #999;
+    padding-bottom: 1mm;
+    margin: 0 0 1mm;
+    break-after: avoid-page; /* заголовок дня не отрывается от записей */
+  }
+
+  .day-list {
+    background: none;
+    border: none;
+    border-radius: 0;
+  }
+
+  .entry {
+    break-inside: avoid; /* запись не разрезается между страницами */
+    padding: 1.5mm 0;
+  }
+
+  .entry + .entry {
+    border-top: 1px solid #ddd;
+  }
+
+  .entry-time {
+    color: #444;
+  }
+
+  .entry-text {
+    color: #000;
+  }
 }
 

@@ -35,6 +35,16 @@ export function dayLabel(day: number, locale: string, todayText: string, yesterd
   }).format(d);
 }
 
+/** Метка дня для печати: всегда полная дата с годом (на бумаге «Сегодня» бессмысленно) */
+export function dayLabelPrint(day: number, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    weekday: "short",
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  }).format(new Date(day));
+}
+
 export function formatTime(ms: number, locale: string): string {
   return new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(ms);
 }
