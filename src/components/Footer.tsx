@@ -1,5 +1,6 @@
 // Футер как на блоге x-crm.in; ссылки ведут на страницы блога
-const BLOG_URL = "https://x-crm.in";
+import { BLOG_URL } from "../links";
+
 const FOUNDED_YEAR = 2005;
 
 export default function Footer() {

@@ -34,6 +34,7 @@ const ru = {
   menu: "Меню",
   print: "Печать",
   installApp: "Установить приложение",
+  about: "О дневнике",
   printedOn: "Распечатано"
 } satisfies Dict;
 

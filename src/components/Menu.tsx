@@ -3,6 +3,7 @@ import type { Notice } from "../App";
 import { getAccessToken, getAuthState, login, logout, subscribeAuth } from "../auth";
 import { LOCALES, setLocale, t, useLocale } from "../i18n";
 import { getCanInstall, promptInstall, subscribeInstall } from "../install";
+import { ABOUT_URL } from "../links";
 import { getEntriesSnapshot, importEntries } from "../store";
 import { sync } from "../sync";
 import { exportJson, parseImportFile } from "../ui/format";
@@ -171,6 +172,19 @@ export default function Menu({ onNotice }: { onNotice: (n: Notice) => void }) {
               {t("installApp")}
             </button>
           )}
+          <div className="menu-sep" />
+          {/* target=_blank: в установленном приложении блог не должен
+              подменять собой дневник в его же окне */}
+          <a
+            className="menu-item"
+            role="menuitem"
+            href={ABOUT_URL}
+            target="_blank"
+            rel="noopener"
+            onClick={() => setOpen(false)}
+          >
+            {t("about")}
+          </a>
         </div>
       )}
     </div>

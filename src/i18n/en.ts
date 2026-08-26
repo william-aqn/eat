@@ -32,6 +32,7 @@ const en = {
   menu: "Menu",
   print: "Print",
   installApp: "Install app",
+  about: "About the diary",
   printedOn: "Printed"
 };
 
