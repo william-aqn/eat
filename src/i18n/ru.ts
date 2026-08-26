@@ -22,8 +22,6 @@ const ru = {
   importDone: "Импортировано записей: {applied} из {total}",
   importNone: "Нового нет — всё уже в дневнике",
   importError: "Не удалось импортировать файл",
-  authDenied: "Вход отменён",
-  authError: "Не удалось войти. Попробуйте ещё раз.",
   lastSync: "Синхронизировано: {time}",
   statusSynced: "Синхронизировано",
   statusSyncing: "Синхронизация…",

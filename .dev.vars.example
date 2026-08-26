@@ -1,6 +1,0 @@
-# Скопируйте в .dev.vars (файл в .gitignore) и заполните для локальной разработки.
-# Client Secret из Google Cloud Console (OAuth client "Web application"):
-GOOGLE_CLIENT_SECRET=your-google-oauth-client-secret
-# Ключ шифрования cookie — base64 от 32 случайных байт. Сгенерировать:
-#   node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
-COOKIE_KEY=paste-base64-key-here

@@ -1,19 +1,21 @@
 # Дневник питания
 
-Минималистичный дневник питания: время + что съели, свободным текстом.
+Минималистичный дневник питания: время + что съели, свободным текстом. **Чисто фронтовое приложение** — без сервера и без бэкенда.
 
 - **Local-first / офлайн**: все данные в IndexedDB браузера, приложение полностью работает без сети и без входа. Service worker кэширует оболочку — сайт открывается офлайн.
 - **PWA**: устанавливается как отдельное приложение (значок на рабочем столе / домашнем экране).
-- **Синхронизация в ваш Google-аккаунт**: после входа записи периодически выгружаются в скрытую папку приложения на Google Диске (`appDataFolder`, файл `entries.json`). Данные лежат только у вас; сервер (Cloudflare Worker) — stateless, без БД, хранит только зашифрованный refresh token в вашей же cookie.
+- **Синхронизация в ваш Google-аккаунт**: после входа записи выгружаются в скрытую папку приложения на Google Диске (`appDataFolder`, файл `entries.json`). Браузер обращается к Google напрямую; сервера-посредника нет, секретов нет.
 - **Мультиязычность**: ru / en, автоопределение, переключатель в меню. Новый язык = один файл словаря в `src/i18n/`.
-- **Версия для печати**: Ctrl+P печатает чистый список записей с полными датами (без формы и кнопок).
-- **Экспорт и импорт JSON** — в меню. Импорт сливает резервную копию с текущими данными без дублей (по тем же LWW-правилам, что и синхронизация); живая запись из бэкапа восстанавливает случайно удалённую.
+- **Версия для печати**: Ctrl+P или пункт «Печать» — чистый список записей с полными датами.
+- **Экспорт и импорт JSON** — в меню. Импорт сливает копию с текущими данными без дублей и восстанавливает случайно удалённые записи.
 
-Стек: React 19 + TypeScript + Vite 8, vite-plugin-pwa, idb; Cloudflare Worker (Hono) + static assets; деплой — GitHub Actions + wrangler.
+Стек: React 19 + TypeScript + Vite 8, vite-plugin-pwa, idb, Google Identity Services. Хостинг — GitHub Pages, деплой — GitHub Actions.
 
 ## Как работает синхронизация
 
-Источник истины — локальная база. Раз в 5 минут (и после каждой правки, при выходе в онлайн, при возврате на вкладку) выполняется merge с файлом на Диске: по каждой записи побеждает более поздняя версия (last-write-wins), удаления переносятся tombstone-ами и вычищаются через 30 дней.
+Источник истины — локальная база. Синхронизация выполняется при открытии приложения, после правок, при возврате на вкладку и раз в 5 минут: merge с файлом на Диске по правилу last-write-wins (побеждает более поздняя версия записи), удаления переносятся tombstone-ами и вычищаются через 30 дней.
+
+**Про сессию**: без бэкенда Google не выдаёт refresh token, поэтому доступ живёт около часа. Пока вы залогинены в Google в этом браузере, продление обычно проходит незаметно; если браузер заблокировал всплывающее окно, в меню появится «Войти заново» — один клик возобновляет синхронизацию. Данные при этом никуда не деваются: они всегда в браузере, а несинхронизированные правки уедут при следующем успешном входе.
 
 Ограничения (осознанные, для личного дневника): при одновременной правке одной записи на двух устройствах побеждает более поздняя целиком; устройство, бывшее офлайн дольше 30 дней, может «воскресить» удалённую запись.
 
@@ -21,77 +23,47 @@
 
 ```bash
 npm install
-npm run dev        # vite build --watch + wrangler dev → http://localhost:8787
-npm test           # юнит-тесты merge и шифрования cookie
+npm run dev        # http://localhost:5173 (Vite, HMR)
+npm run preview    # http://localhost:4173 — прод-сборка, здесь работает service worker
+npm test           # юнит-тесты merge и импорта
 npm run typecheck
 npm run icons      # перегенерировать PNG-иконки из SVG-шаблона (scripts/icons.mjs)
 ```
 
-Без настройки Google приложение работает в локальном режиме (кнопка «Войти» будет вести на ошибку Google — это ожидаемо). Для локальной проверки входа создайте `.dev.vars` по образцу `.dev.vars.example`.
+Без настройки Google приложение работает в локальном режиме (всё, кроме синхронизации). Для входа укажите свой Client ID в файле `.env`.
 
-## Настройка (один раз, ~20 минут)
+## Настройка (один раз, ~10 минут)
 
-### A. Cloudflare
-
-1. Аккаунт на [dash.cloudflare.com](https://dash.cloudflare.com) (бесплатного тарифа достаточно).
-2. **Account ID**: Workers & Pages → правая колонка.
-3. **API token**: [dash.cloudflare.com/profile/api-tokens](https://dash.cloudflare.com/profile/api-tokens) → Create Token → шаблон **Edit Cloudflare Workers**.
-
-### B. Первый деплой (узнаём URL для redirect URI)
-
-```bash
-npx wrangler login
-npm run deploy
-```
-
-Wrangler напечатает URL вида `https://eat-diary.<ваш-сабдомен>.workers.dev`. Вход через Google пока не работает — это нормально, идём дальше.
-
-### C. Google Cloud Console
+### A. Google Cloud Console
 
 1. [console.cloud.google.com](https://console.cloud.google.com) → создать проект (например, `food-diary`).
-2. **APIs & Services → Library → Google Drive API → Enable** (без этого все вызовы вернут 403).
+2. **APIs & Services → Library → Google Drive API → Enable** (без этого вызовы вернут 403).
 3. **Google Auth Platform** ([console.cloud.google.com/auth](https://console.cloud.google.com/auth)) → Get started: имя приложения, support email, Audience: **External**.
 4. **Data Access → Add scopes**: `.../auth/drive.appdata`, `.../auth/userinfo.email`, `openid` (все несенситивные).
-5. **Clients → Create client → Web application** → Authorized redirect URIs (точное совпадение, без завершающего `/`):
-   - `http://localhost:8787/auth/callback`
-   - `https://eat-diary.<ваш-сабдомен>.workers.dev/auth/callback`
-
-   Скопируйте **Client ID** и **Client Secret**.
-6. **Audience → Publish App** (статус «In production»). Верификация не требуется — scopes несенситивные. В статусе «Testing» refresh tokens умирают каждые 7 дней — не оставляйте его.
-
-### D. Секреты воркера
-
-1. Client ID вставьте в `wrangler.jsonc` → `vars.GOOGLE_CLIENT_ID` (это не секрет).
-2. ```bash
-   npx wrangler secret put GOOGLE_CLIENT_SECRET
+5. **Clients → Create client → Web application** → **Authorized JavaScript origins** (именно origins, redirect URI не нужны):
+   - `http://localhost:5173` и `http://localhost:4173` — для разработки
+   - `https://<ваш-логин>.github.io` — боевой адрес
+6. **Audience → Publish App** («In production»). Верификация не требуется — scopes несенситивные.
+7. Скопируйте **Client ID** в файл `.env`:
    ```
-3. Сгенерируйте ключ шифрования cookie и сохраните его:
+   VITE_GOOGLE_CLIENT_ID=xxxxx.apps.googleusercontent.com
+   ```
+   Client ID — публичный идентификатор, а не секрет: он попадает в бандл, это нормально для браузерного OAuth. Доступ ограничен списком origins из шага 5. Файл `.env` коммитится в репозиторий — иначе сборка в GitHub Actions не будет знать Client ID.
+
+### B. GitHub Pages
+
+1. Создайте репозиторий на GitHub и запушьте проект:
    ```bash
-   node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
-   ```
-   ```bash
-   npx wrangler secret put COOKIE_KEY
-   ```
-4. ```bash
-   npm run deploy
-   ```
-   После этого вход и синхронизация работают на проде.
-
-### E. GitHub Actions (автодеплой при push в main)
-
-1. Создайте пустой репозиторий на GitHub.
-2. Repo → Settings → Secrets and variables → Actions → добавьте:
-   - `CLOUDFLARE_API_TOKEN` (из шага A3)
-   - `CLOUDFLARE_ACCOUNT_ID` (из шага A2)
-3. ```bash
    git remote add origin https://github.com/<вы>/<репозиторий>.git
+   ```
+   ```bash
    git push -u origin main
    ```
+2. Repo → **Settings → Pages → Source: GitHub Actions**.
+3. Готово: каждый push в `main` прогоняет тесты, собирает и публикует сайт на `https://<вы>.github.io/<репозиторий>/`.
 
-Каждый push в `main` запускает тесты, сборку и деплой (`.github/workflows/deploy.yml`).
+Если адрес отличается от указанного в шаге A5, добавьте его в Authorized JavaScript origins.
 
-## Безопасность
+## Приватность
 
-- Refresh token шифруется AES-GCM ключом, известным только воркеру, и живёт в HttpOnly/Secure/SameSite=Lax cookie с `Path=/auth` — JS-код страницы его не видит, со статикой он не передаётся.
-- Access token живёт в памяти вкладки ~1 час; браузер обращается к Google Drive API напрямую.
-- Отозвать доступ можно в любой момент: [myaccount.google.com/permissions](https://myaccount.google.com/permissions) — приложение покажет «Войти заново», локальные данные не пострадают.
+Данные хранятся в вашем браузере и (если включите синхронизацию) в скрытой папке приложения вашего Google Диска — она не видна среди ваших файлов и доступна только этому приложению. Промежуточных серверов нет: страница отдаётся GitHub Pages статикой, а запросы к Диску идут напрямую из браузера. Отозвать доступ можно в [настройках Google-аккаунта](https://myaccount.google.com/permissions).

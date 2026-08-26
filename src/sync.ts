@@ -52,7 +52,8 @@ export async function sync(): Promise<void> {
   }
   const token = await getAccessToken();
   if (!token) {
-    setState({ status: getAuthState().status === "signedIn" ? "error" : "localOnly" });
+    // needsReauth → нужен клик по «Войти заново»; signedOut → чисто локальный режим
+    setState({ status: getAuthState().status === "needsReauth" ? "error" : "localOnly" });
     return;
   }
 

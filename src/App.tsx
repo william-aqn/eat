@@ -26,12 +26,8 @@ export default function App() {
     return () => window.removeEventListener("beforeprint", onBeforePrint);
   }, []);
 
-  // Разовые уведомления: после OAuth-редиректа (/?auth=denied|error) и результат импорта
-  const [notice, setNotice] = useState<Notice | null>(() => {
-    const p = new URLSearchParams(location.search).get("auth");
-    if (p) history.replaceState(null, "", "/");
-    return p ? { key: p === "denied" ? "authDenied" : "authError", tone: "warn" } : null;
-  });
+  // Разовые уведомления (результат импорта и т.п.)
+  const [notice, setNotice] = useState<Notice | null>(null);
 
   return (
     <div className="app">

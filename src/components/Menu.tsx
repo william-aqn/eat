@@ -3,6 +3,7 @@ import type { Notice } from "../App";
 import { getAuthState, login, logout, subscribeAuth } from "../auth";
 import { LOCALES, setLocale, t, useLocale } from "../i18n";
 import { getEntriesSnapshot, importEntries } from "../store";
+import { sync } from "../sync";
 import { exportJson, parseImportFile } from "../ui/format";
 
 export default function Menu({ onNotice }: { onNotice: (n: Notice) => void }) {
@@ -98,7 +99,13 @@ export default function Menu({ onNotice }: { onNotice: (n: Notice) => void }) {
               className={"menu-item" + (auth.status === "needsReauth" ? " warn" : "")}
               role="menuitem"
               title={t("signInTitle")}
-              onClick={login}
+              onClick={() => {
+                setOpen(false);
+                // клик — пользовательский жест: попап Google не будет заблокирован
+                void login().then((ok) => {
+                  if (ok) void sync();
+                });
+              }}
             >
               {t(auth.status === "needsReauth" ? "signInAgain" : "signIn")}
             </button>

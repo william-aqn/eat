@@ -5,7 +5,13 @@
       "name": "eat-diary",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
-      "port": 8787
+      "port": 5173
+    },
+    {
+      "name": "eat-diary-preview",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "preview"],
+      "port": 4173
     }
   ]
 }

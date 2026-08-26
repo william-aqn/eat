@@ -20,8 +20,6 @@ const en = {
   importDone: "Imported entries: {applied} of {total}",
   importNone: "Nothing new — everything is already in the diary",
   importError: "Could not import this file",
-  authDenied: "Sign-in was cancelled",
-  authError: "Sign-in failed. Please try again.",
   lastSync: "Synced: {time}",
   statusSynced: "Synced",
   statusSyncing: "Syncing…",
