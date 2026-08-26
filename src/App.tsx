@@ -3,6 +3,7 @@ import { flushSync } from "react-dom";
 import DayGroup from "./components/DayGroup";
 import EntryForm from "./components/EntryForm";
 import Footer from "./components/Footer";
+import ForbiddenList from "./components/ForbiddenList";
 import Header from "./components/Header";
 import { t, useLocale, type Dict } from "./i18n";
 import { getEntriesSnapshot, subscribeEntries } from "./store";
@@ -47,6 +48,7 @@ export default function App() {
           </div>
         )}
         <EntryForm />
+        <ForbiddenList />
         {groups.length === 0 ? (
           <p className="empty">{t("emptyState")}</p>
         ) : (

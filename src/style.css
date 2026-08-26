@@ -351,10 +351,42 @@ input[type="datetime-local"] {
 }
 
 /* Позиции в рамках одного приёма пищи — по строке на позицию */
+.entry-line {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
 .entry-line + .entry-line {
   margin-top: 3px;
   padding-top: 3px;
   border-top: 1px dotted var(--line-soft);
+}
+
+.entry-line-text {
+  flex: 1;
+}
+
+/* Запрещённая позиция — красным, знак ⊘ виден всегда */
+.entry-line.banned .entry-line-text {
+  color: var(--danger);
+}
+
+.ban-btn {
+  opacity: 0;
+  transition: opacity 0.15s;
+  font-size: 13px;
+  padding: 0 4px;
+}
+
+.entry-line:hover .ban-btn,
+.ban-btn:focus-visible {
+  opacity: 1;
+}
+
+.ban-btn.active {
+  opacity: 1;
+  color: var(--danger);
 }
 
 .entry-actions {
@@ -372,6 +404,14 @@ input[type="datetime-local"] {
 @media (hover: none) {
   .entry-actions {
     opacity: 0.6;
+  }
+
+  .ban-btn {
+    opacity: 0.5;
+  }
+
+  .ban-btn.active {
+    opacity: 1;
   }
 }
 
@@ -427,6 +467,59 @@ input[type="datetime-local"] {
   color: var(--accent);
 }
 
+/* Запрещённые продукты — выпадающий список под формой */
+.forbidden {
+  background: var(--card);
+  border: 1px dashed var(--danger);
+  margin-bottom: 28px;
+}
+
+.forbidden-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--danger);
+  font: inherit;
+  font-size: 13px;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.forbidden-chevron {
+  margin-left: auto;
+  color: var(--muted);
+}
+
+.forbidden-list {
+  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 2px 12px 10px;
+}
+
+.forbidden.open .forbidden-list {
+  display: block;
+}
+
+.forbidden-item {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 3px 0;
+}
+
+.forbidden-item + .forbidden-item {
+  border-top: 1px dotted var(--line-soft);
+}
+
+.forbidden-text {
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
 /* Футер как на блоге x-crm.in */
 .site-footer {
   margin-top: 40px;
@@ -463,6 +556,9 @@ input[type="datetime-local"] {
   .entry-form,
   .notice,
   .entry-actions,
+  .ban-btn,
+  .forbidden-chevron,
+  .forbidden-item .icon-btn,
   .site-footer,
   .empty {
     display: none !important;
@@ -530,6 +626,31 @@ input[type="datetime-local"] {
 
   .entry-line + .entry-line {
     border-top-color: #ddd;
+  }
+
+  /* список запрещённого печатаем раскрытым — он и нужен доктору */
+  .forbidden {
+    background: none;
+    border: 1px solid #999;
+    break-inside: avoid;
+  }
+
+  .forbidden .forbidden-list {
+    display: block;
+  }
+
+  .forbidden-toggle {
+    color: #000;
+    pointer-events: none;
+  }
+
+  .forbidden-item + .forbidden-item {
+    border-top-color: #ddd;
+  }
+
+  /* в ч/б печати запрет показывает список сверху, позиции не краснеют */
+  .entry-line.banned .entry-line-text {
+    color: #000;
   }
 
   .entry-time {

@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
 import App from "./App";
+import { refreshForbiddenFromDb } from "./forbidden";
 import { applyToDocument } from "./i18n";
 import { refreshFromDb, setMutateHook } from "./store";
 import { loadSyncMeta, scheduleSync, sync } from "./sync";
@@ -28,6 +29,7 @@ setInterval(
 
 void (async () => {
   await refreshFromDb();
+  await refreshForbiddenFromDb();
   await loadSyncMeta();
   void sync();
 })();

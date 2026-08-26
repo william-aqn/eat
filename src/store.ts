@@ -31,6 +31,11 @@ export function setMutateHook(fn: () => void): void {
   onMutate = fn;
 }
 
+/** Дёргает hook правки из других модулей (запрещённые продукты) */
+export function notifyMutate(): void {
+  onMutate?.();
+}
+
 async function afterMutate() {
   await db.setMeta("dirty", 1);
   await refreshFromDb();

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { Notice } from "../App";
 import { getAccessToken, getAuthState, login, logout, subscribeAuth } from "../auth";
+import { getForbiddenSnapshot, importForbidden } from "../forbidden";
 import { LOCALES, setLocale, t, useLocale } from "../i18n";
 import { getCanInstall, promptInstall, subscribeInstall } from "../install";
 import { ABOUT_URL } from "../links";
@@ -38,11 +39,12 @@ export default function Menu({ onNotice }: { onNotice: (n: Notice) => void }) {
     e.target.value = ""; // позволяет выбрать тот же файл повторно
     if (!file) return;
     try {
-      const { entries: parsed } = parseImportFile(await file.text());
-      const { applied } = await importEntries(parsed);
+      const parsed = parseImportFile(await file.text());
+      const { applied } = await importEntries(parsed.entries);
+      await importForbidden(parsed.forbidden);
       onNotice(
         applied
-          ? { key: "importDone", vars: { applied, total: parsed.length }, tone: "ok" }
+          ? { key: "importDone", vars: { applied, total: parsed.entries.length }, tone: "ok" }
           : { key: "importNone", tone: "ok" }
       );
     } catch {
@@ -135,7 +137,7 @@ export default function Menu({ onNotice }: { onNotice: (n: Notice) => void }) {
             role="menuitem"
             onClick={() => {
               setOpen(false);
-              exportJson(getEntriesSnapshot());
+              exportJson(getEntriesSnapshot(), getForbiddenSnapshot());
             }}
           >
             {t("exportJson")}

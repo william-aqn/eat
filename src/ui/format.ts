@@ -1,4 +1,4 @@
-import type { Entry } from "../db";
+import type { Entry, ForbiddenItem } from "../db";
 
 export function dayStart(ms: number): number {
   const d = new Date(ms);
@@ -61,10 +61,14 @@ export function fromLocalInput(value: string): number {
 }
 
 /**
- * Разбор файла импорта. Принимает формат экспорта ({exportedAt, entries})
+ * Разбор файла импорта. Принимает формат экспорта ({exportedAt, entries, forbidden})
  * или голый массив записей; некорректные записи пропускаются.
  */
-export function parseImportFile(text: string): { entries: Entry[]; skipped: number } {
+export function parseImportFile(text: string): {
+  entries: Entry[];
+  forbidden: ForbiddenItem[];
+  skipped: number;
+} {
   const data: unknown = JSON.parse(text);
   const raw = Array.isArray(data) ? data : (data as { entries?: unknown } | null)?.entries;
   if (!Array.isArray(raw)) throw new Error("bad_format");
@@ -89,12 +93,33 @@ export function parseImportFile(text: string): { entries: Entry[]; skipped: numb
     }
   }
   if (!entries.length && raw.length) throw new Error("no_valid_entries");
-  return { entries, skipped };
+
+  // запрещённые продукты: нет в старых бэкапах, некорректные молча пропускаются
+  const rawForbidden = Array.isArray(data)
+    ? undefined
+    : (data as { forbidden?: unknown } | null)?.forbidden;
+  const forbidden: ForbiddenItem[] = [];
+  if (Array.isArray(rawForbidden)) {
+    for (const item of rawForbidden) {
+      const r = item as Partial<ForbiddenItem> | null;
+      if (
+        r &&
+        typeof r.id === "string" &&
+        r.id &&
+        typeof r.text === "string" &&
+        typeof r.updatedAt === "number" &&
+        Number.isFinite(r.updatedAt)
+      ) {
+        forbidden.push({ id: r.id, text: r.text, updatedAt: r.updatedAt, deleted: r.deleted ? 1 : 0 });
+      }
+    }
+  }
+  return { entries, forbidden, skipped };
 }
 
-export function exportJson(entries: Entry[]): void {
+export function exportJson(entries: Entry[], forbidden: ForbiddenItem[]): void {
   const blob = new Blob(
-    [JSON.stringify({ exportedAt: new Date().toISOString(), entries }, null, 2)],
+    [JSON.stringify({ exportedAt: new Date().toISOString(), entries, forbidden }, null, 2)],
     { type: "application/json" }
   );
   const a = document.createElement("a");

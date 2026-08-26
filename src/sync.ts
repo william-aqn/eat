@@ -1,5 +1,6 @@
 import { getAccessToken, getAuthState } from "./auth";
 import * as db from "./db";
+import { refreshForbiddenFromDb } from "./forbidden";
 import { mergeEntries, purgeOldTombstones, TOMBSTONE_TTL_MS } from "./merge";
 import { driveAppData, HttpError } from "./remote/driveAppData";
 import type { SyncFile } from "./remote/types";
@@ -96,20 +97,32 @@ export async function sync(): Promise<void> {
     const { merged, remoteWins, pushNeeded } = mergeEntries(local, remote.entries ?? []);
     if (remoteWins.length) await db.applyRemoteWins(remoteWins);
 
+    // запрещённые продукты идут тем же LWW-проходом, что и записи
+    const localForbidden = await db.allForbidden(true);
+    const fRes = mergeEntries(localForbidden, remote.forbidden ?? []);
+    if (fRes.remoteWins.length) await db.applyForbiddenWins(fRes.remoteWins);
+
     const now = Date.now();
     const { kept, purgedCount } = purgeOldTombstones(merged, now);
+    const { kept: keptForbidden, purgedCount: purgedForbidden } = purgeOldTombstones(
+      fRes.merged,
+      now
+    );
     await db.purgeTombstonesBefore(now - TOMBSTONE_TTL_MS);
+    await db.purgeForbiddenTombstonesBefore(now - TOMBSTONE_TTL_MS);
 
+    const file: SyncFile = { version: 1, entries: kept, forbidden: keptForbidden };
     if (!fileId) {
-      fileId = await driveAppData.create(FILE_NAME, { version: 1, entries: kept });
-    } else if (pushNeeded || purgedCount > 0) {
-      await driveAppData.update(fileId, { version: 1, entries: kept });
+      fileId = await driveAppData.create(FILE_NAME, file);
+    } else if (pushNeeded || fRes.pushNeeded || purgedCount > 0 || purgedForbidden > 0) {
+      await driveAppData.update(fileId, file);
     }
 
     await db.setMeta("driveFileId", fileId);
     const finishedAt = Date.now();
     await db.setMeta("lastSyncedAt", finishedAt);
     if (remoteWins.length) await refreshFromDb();
+    if (fRes.remoteWins.length) await refreshForbiddenFromDb();
     setState({ status: "ok", lastSyncedAt: finishedAt, dirty: false });
   } catch (e) {
     console.warn("sync failed:", e);

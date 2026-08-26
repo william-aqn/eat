@@ -1,18 +1,28 @@
-import type { Entry } from "./db";
+/** Общая форма синхронизируемой записи: дневник и запрещённые продукты */
+export type Syncable = {
+  id: string;
+  text: string;
+  /** LWW-часы: время последнего изменения, epoch ms */
+  updatedAt: number;
+  /** tombstone: запись удалена */
+  deleted: 0 | 1;
+  /** момент приёма пищи — есть у записей дневника, нет у запрещённых продуктов */
+  at?: number;
+};
 
 export const TOMBSTONE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
-function sameVersion(a: Entry, b: Entry): boolean {
+function sameVersion<T extends Syncable>(a: T, b: T): boolean {
   return (
     a.updatedAt === b.updatedAt && a.deleted === b.deleted && a.text === b.text && a.at === b.at
   );
 }
 
-export type MergeResult = {
+export type MergeResult<T extends Syncable> = {
   /** победители по каждому id */
-  merged: Entry[];
+  merged: T[];
   /** версии, которые нужно записать в локальную базу */
-  remoteWins: Entry[];
+  remoteWins: T[];
   /** файл в облаке отличается от результата — нужен push */
   pushNeeded: boolean;
 };
@@ -21,17 +31,17 @@ export type MergeResult = {
  * Last-write-wins по каждой записи: побеждает больший updatedAt;
  * при равенстве — удалённая (tombstone) версия, иначе локальная.
  */
-export function mergeEntries(local: Entry[], remote: Entry[]): MergeResult {
-  const pairs = new Map<string, { l?: Entry; r?: Entry }>();
+export function mergeEntries<T extends Syncable>(local: T[], remote: T[]): MergeResult<T> {
+  const pairs = new Map<string, { l?: T; r?: T }>();
   for (const e of local) pairs.set(e.id, { l: e });
   for (const e of remote) pairs.set(e.id, { ...pairs.get(e.id), r: e });
 
-  const merged: Entry[] = [];
-  const remoteWins: Entry[] = [];
+  const merged: T[] = [];
+  const remoteWins: T[] = [];
   let pushNeeded = false;
 
   for (const { l, r } of pairs.values()) {
-    let winner: Entry;
+    let winner: T;
     if (l && r) {
       if (l.updatedAt > r.updatedAt) winner = l;
       else if (r.updatedAt > l.updatedAt) winner = r;
@@ -54,9 +64,13 @@ export function mergeEntries(local: Entry[], remote: Entry[]): MergeResult {
  * со свежим updatedAt (импорт — явное намерение вернуть данные; свежий
  * updatedAt разнесёт восстановление по остальным устройствам через sync).
  */
-export function planImport(local: Entry[], imported: Entry[], now: number): { writes: Entry[] } {
+export function planImport<T extends Syncable>(
+  local: T[],
+  imported: T[],
+  now: number
+): { writes: T[] } {
   const byId = new Map(local.map((e) => [e.id, e]));
-  const writes: Entry[] = [];
+  const writes: T[] = [];
   for (const e of imported) {
     const cur = byId.get(e.id);
     if (!cur || e.updatedAt > cur.updatedAt) writes.push(e);
@@ -65,10 +79,10 @@ export function planImport(local: Entry[], imported: Entry[], now: number): { wr
   return { writes };
 }
 
-export function purgeOldTombstones(
-  entries: Entry[],
+export function purgeOldTombstones<T extends Syncable>(
+  entries: T[],
   now: number
-): { kept: Entry[]; purgedCount: number } {
+): { kept: T[]; purgedCount: number } {
   const kept = entries.filter((e) => !(e.deleted && now - e.updatedAt > TOMBSTONE_TTL_MS));
   return { kept, purgedCount: entries.length - kept.length };
 }

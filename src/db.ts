@@ -11,19 +11,37 @@ export type Entry = {
   deleted: 0 | 1;
 };
 
+/** Продукт, который доктор запретил; id — нормализованное название (см. normalizeFood) */
+export type ForbiddenItem = {
+  id: string;
+  /** название в исходном написании — для показа в списке */
+  text: string;
+  updatedAt: number;
+  deleted: 0 | 1;
+};
+
 interface DiarySchema extends DBSchema {
   entries: { key: string; value: Entry; indexes: { "by-at": number } };
+  forbidden: { key: string; value: ForbiddenItem };
   meta: { key: string; value: unknown };
 }
+
+/** v2: store «forbidden» — запрещённые продукты */
+const DB_VERSION = 2;
 
 let dbp: Promise<IDBPDatabase<DiarySchema>> | null = null;
 
 function db() {
-  dbp ??= openDB<DiarySchema>("food-diary", 1, {
-    upgrade(d) {
-      const store = d.createObjectStore("entries", { keyPath: "id" });
-      store.createIndex("by-at", "at");
-      d.createObjectStore("meta");
+  dbp ??= openDB<DiarySchema>("food-diary", DB_VERSION, {
+    upgrade(d, oldVersion) {
+      if (oldVersion < 1) {
+        const store = d.createObjectStore("entries", { keyPath: "id" });
+        store.createIndex("by-at", "at");
+        d.createObjectStore("meta");
+      }
+      if (oldVersion < 2) {
+        d.createObjectStore("forbidden", { keyPath: "id" });
+      }
     }
   });
   return dbp;
@@ -71,6 +89,49 @@ export async function purgeTombstonesBefore(cutoff: number): Promise<void> {
   const tx = (await db()).transaction("entries", "readwrite");
   for (const e of await tx.store.getAll()) {
     if (e.deleted && e.updatedAt < cutoff) await tx.store.delete(e.id);
+  }
+  await tx.done;
+}
+
+export async function allForbidden(includeDeleted = false): Promise<ForbiddenItem[]> {
+  const rows = await (await db()).getAll("forbidden");
+  return includeDeleted ? rows : rows.filter((f) => !f.deleted);
+}
+
+export async function getForbidden(id: string): Promise<ForbiddenItem | undefined> {
+  return (await db()).get("forbidden", id);
+}
+
+export async function putForbidden(f: ForbiddenItem): Promise<void> {
+  await (await db()).put("forbidden", f);
+}
+
+export async function putForbiddenMany(list: ForbiddenItem[]): Promise<void> {
+  const tx = (await db()).transaction("forbidden", "readwrite");
+  for (const f of list) await tx.store.put(f);
+  await tx.done;
+}
+
+/** Как applyRemoteWins, но для запрещённых продуктов */
+export async function applyForbiddenWins(wins: ForbiddenItem[]): Promise<void> {
+  const tx = (await db()).transaction("forbidden", "readwrite");
+  for (const w of wins) {
+    const cur = await tx.store.get(w.id);
+    if (
+      !cur ||
+      cur.updatedAt < w.updatedAt ||
+      (cur.updatedAt === w.updatedAt && w.deleted && !cur.deleted)
+    ) {
+      await tx.store.put(w);
+    }
+  }
+  await tx.done;
+}
+
+export async function purgeForbiddenTombstonesBefore(cutoff: number): Promise<void> {
+  const tx = (await db()).transaction("forbidden", "readwrite");
+  for (const f of await tx.store.getAll()) {
+    if (f.deleted && f.updatedAt < cutoff) await tx.store.delete(f.id);
   }
   await tx.done;
 }

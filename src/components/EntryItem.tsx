@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import type { Entry } from "../db";
 import { t, useLocale } from "../i18n";
+import { getForbiddenKeys, normalizeFood, subscribeForbidden, toggleForbidden } from "../forbidden";
 import { editEntry, removeEntry } from "../store";
 import { formatTime, fromLocalInput, toLocalInput } from "../ui/format";
 import { useAutoGrow } from "../ui/useAutoGrow";
@@ -11,6 +12,7 @@ export default function EntryItem({ entry }: { entry: Entry }) {
   const [text, setText] = useState(entry.text);
   const [at, setAt] = useState(() => toLocalInput(entry.at));
   const taRef = useAutoGrow();
+  const forbiddenKeys = useSyncExternalStore(subscribeForbidden, getForbiddenKeys);
 
   function startEdit() {
     setText(entry.text);
@@ -75,11 +77,22 @@ export default function EntryItem({ entry }: { entry: Entry }) {
         </div>
       </div>
       <div className="entry-text">
-        {lines.map((line, i) => (
-          <div key={i} className="entry-line">
-            {line}
-          </div>
-        ))}
+        {lines.map((line, i) => {
+          const banned = forbiddenKeys.has(normalizeFood(line));
+          return (
+            <div key={i} className={"entry-line" + (banned ? " banned" : "")}>
+              <span className="entry-line-text">{line}</span>
+              <button
+                className={"icon-btn ban-btn" + (banned ? " active" : "")}
+                aria-label={banned ? t("allowAgain") : t("forbid")}
+                title={banned ? t("allowAgain") : t("forbid")}
+                onClick={() => void toggleForbidden(line)}
+              >
+                ⊘
+              </button>
+            </div>
+          );
+        })}
       </div>
     </li>
   );
