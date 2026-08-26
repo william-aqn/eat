@@ -38,15 +38,23 @@ export default function SyncStatus() {
     return <span className="dot err" role="status" aria-label={t("signInAgain")} title={t("signInAgain")} />;
   }
 
-  const title = sync.lastSyncedAt
-    ? t("lastSync", { time: new Date(sync.lastSyncedAt).toLocaleString(getLocale()) })
-    : t(DOT_LABEL[sync.status]);
+  // жёлтая точка: есть правки, не доехавшие до облака (кроме момента самой синхронизации)
+  const dirty = !!sync.dirty && sync.status !== "syncing";
+  const labelKey = dirty
+    ? sync.status === "needsAuth"
+      ? "statusNeedsAuth"
+      : "statusDirty"
+    : DOT_LABEL[sync.status];
+  const title =
+    !dirty && sync.lastSyncedAt
+      ? t("lastSync", { time: new Date(sync.lastSyncedAt).toLocaleString(getLocale()) })
+      : t(labelKey);
 
   return (
     <span
-      className={`dot ${DOT_CLASS[sync.status]}`}
+      className={`dot ${dirty ? "warn" : DOT_CLASS[sync.status]}`}
       role="status"
-      aria-label={t(DOT_LABEL[sync.status])}
+      aria-label={t(labelKey)}
       title={title}
     />
   );

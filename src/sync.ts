@@ -16,7 +16,7 @@ export type SyncStatus =
   | "localOnly"
   /** вход выполнялся, но токен протух — нужен клик по «Синхронизировать» */
   | "needsAuth";
-export type SyncState = { status: SyncStatus; lastSyncedAt?: number };
+export type SyncState = { status: SyncStatus; lastSyncedAt?: number; dirty?: boolean };
 
 let state: SyncState = { status: "idle" };
 const listeners = new Set<() => void>();
@@ -38,6 +38,8 @@ export function subscribeSync(fn: () => void): () => void {
 export async function loadSyncMeta(): Promise<void> {
   const lastSyncedAt = await db.getMeta<number>("lastSyncedAt");
   if (lastSyncedAt) setState({ lastSyncedAt });
+  // правки, не доехавшие до облака в прошлой сессии (например, офлайн)
+  if (await db.getMeta<number>("dirty")) setState({ dirty: true });
 }
 
 let syncing = false;
@@ -45,6 +47,8 @@ let rerun = false;
 let timer: ReturnType<typeof setTimeout> | undefined;
 
 export function scheduleSync(delayMs = 4000): void {
+  // сюда попадают только правки (и повтор из finally) — есть что отправить
+  setState({ dirty: true });
   clearTimeout(timer);
   timer = setTimeout(() => void sync(), delayMs);
 }
@@ -106,7 +110,7 @@ export async function sync(): Promise<void> {
     const finishedAt = Date.now();
     await db.setMeta("lastSyncedAt", finishedAt);
     if (remoteWins.length) await refreshFromDb();
-    setState({ status: "ok", lastSyncedAt: finishedAt });
+    setState({ status: "ok", lastSyncedAt: finishedAt, dirty: false });
   } catch (e) {
     console.warn("sync failed:", e);
     setState({ status: navigator.onLine ? "error" : "offline" });

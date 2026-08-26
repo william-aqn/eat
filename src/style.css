@@ -7,6 +7,7 @@
   --accent: #e4c49f;
   --btn-bg: rgba(228, 196, 159, 0.15);
   --line: rgba(228, 196, 159, 0.3);
+  --line-soft: rgba(228, 196, 159, 0.15);
   --link: #63c0f5;
   --danger: #ac4142;
   --warn: #f4bf75;
@@ -173,6 +174,7 @@ body {
 .dot.busy { background: var(--warn); animation: pulse 1.2s ease-in-out infinite; }
 .dot.err { background: var(--danger); }
 .dot.off { background: var(--muted); }
+.dot.warn { background: var(--warn); }
 
 @keyframes pulse {
   50% { opacity: 0.35; }
@@ -244,11 +246,15 @@ button {
 .form-row {
   display: flex;
   align-items: center;
+  /* на узких экранах кнопка переносится под поле даты, а не вылезает за край */
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 10px;
   margin-top: 8px;
 }
 
 input[type="datetime-local"] {
+  max-width: 100%;
   border: 1px solid var(--line);
   background: var(--bg);
   color: var(--ink);
@@ -306,6 +312,13 @@ input[type="datetime-local"] {
   flex: 1;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+/* Позиции в рамках одного приёма пищи — по строке на позицию */
+.entry-line + .entry-line {
+  margin-top: 3px;
+  padding-top: 3px;
+  border-top: 1px dotted var(--line-soft);
 }
 
 .entry-actions {
@@ -454,6 +467,10 @@ input[type="datetime-local"] {
 
   .entry + .entry {
     border-top: 1px solid #ddd;
+  }
+
+  .entry-line + .entry-line {
+    border-top-color: #ddd;
   }
 
   .entry-time {

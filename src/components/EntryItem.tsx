@@ -49,10 +49,19 @@ export default function EntryItem({ entry }: { entry: Entry }) {
     );
   }
 
+  // каждая непустая строка текста — отдельная позиция приёма пищи
+  const lines = entry.text.split("\n").filter((line) => line.trim() !== "");
+
   return (
     <li className="entry">
       <time className="entry-time">{formatTime(entry.at, locale)}</time>
-      <div className="entry-text">{entry.text}</div>
+      <div className="entry-text">
+        {lines.map((line, i) => (
+          <div key={i} className="entry-line">
+            {line}
+          </div>
+        ))}
+      </div>
       <div className="entry-actions">
         <button className="icon-btn" aria-label={t("edit")} title={t("edit")} onClick={startEdit}>
           ✎

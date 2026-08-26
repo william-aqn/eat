@@ -29,6 +29,7 @@ const ru = {
   statusError: "Ошибка синхронизации",
   statusOffline: "Офлайн — изменения сохраняются локально",
   statusNeedsAuth: "Нажмите «Синхронизировать» в меню",
+  statusDirty: "Есть несинхронизированные правки",
   ctrlEnterHint: "Ctrl+Enter — добавить",
   menu: "Меню",
   print: "Печать",

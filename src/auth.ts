@@ -7,6 +7,8 @@ const CLIENT_ID = (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined) 
 const SCOPES = "openid email https://www.googleapis.com/auth/drive.appdata";
 const EMAIL_KEY = "fd.email";
 const ENABLED_KEY = "fd.syncEnabled";
+const TOKEN_KEY = "fd.token";
+const TOKEN_EXP_KEY = "fd.tokenExp";
 
 export type AuthStatus = "signedOut" | "signedIn" | "needsReauth";
 export type AuthState = { status: AuthStatus; email: string | null };
@@ -31,7 +33,16 @@ export function subscribeAuth(fn: () => void): () => void {
   };
 }
 
-let cached: { token: string; exp: number } | null = null;
+// Токен переживает перезагрузку страницы: F5 не должен просить вход заново,
+// пока час жизни токена не истёк. Утечка через localStorage не страшнее самого
+// приложения: scope токена — только appDataFolder этого же приложения.
+function restoreToken(): { token: string; exp: number } | null {
+  const token = localStorage.getItem(TOKEN_KEY);
+  const exp = Number(localStorage.getItem(TOKEN_EXP_KEY));
+  return token && Number.isFinite(exp) && Date.now() < exp - 60_000 ? { token, exp } : null;
+}
+
+let cached: { token: string; exp: number } | null = restoreToken();
 
 let gisLoading: Promise<void> | null = null;
 
@@ -67,6 +78,8 @@ function requestToken(prompt: "" | "consent"): Promise<string | null> {
             return;
           }
           cached = { token: resp.access_token, exp: Date.now() + Number(resp.expires_in) * 1000 };
+          localStorage.setItem(TOKEN_KEY, cached.token);
+          localStorage.setItem(TOKEN_EXP_KEY, String(cached.exp));
           resolve(resp.access_token);
         },
         // попап заблокирован или закрыт пользователем
@@ -109,6 +122,8 @@ export function getAccessToken(): string | null {
 
 export function invalidateToken(): void {
   cached = null;
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(TOKEN_EXP_KEY);
 }
 
 /** Интерактивный вход (по клику): при первом входе — экран согласия Google */
@@ -141,6 +156,8 @@ export async function logout(): Promise<void> {
     }
   }
   cached = null;
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(TOKEN_EXP_KEY);
   localStorage.removeItem(EMAIL_KEY);
   localStorage.removeItem(ENABLED_KEY);
   set({ status: "signedOut", email: null });
