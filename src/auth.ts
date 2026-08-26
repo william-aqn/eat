@@ -32,8 +32,6 @@ export function subscribeAuth(fn: () => void): () => void {
 }
 
 let cached: { token: string; exp: number } | null = null;
-// одна тихая попытка на загрузку страницы — таймеры не должны спамить попапами
-let silentTried = false;
 
 let gisLoading: Promise<void> | null = null;
 
@@ -97,32 +95,20 @@ async function fetchEmail(token: string): Promise<string | null> {
 }
 
 /**
- * Access token для Drive API (без взаимодействия с пользователем).
- * null — синхронизация не включена, офлайн или нужен клик (needsReauth).
+ * Access token для Drive API — только из кэша, без сети и без попапа.
+ * Продление здесь НЕ делается намеренно: GIS открывает окно даже при
+ * prompt:"" (тихого обновления в token flow не существует), а всплывающее
+ * окно при запуске ломает ощущение офлайн-приложения. Токен продлевается
+ * только по явному действию — login() из кнопок «Войти»/«Синхронизировать».
+ * null — синхронизация не включена или токен протух.
  */
-export async function getAccessToken(): Promise<string | null> {
+export function getAccessToken(): string | null {
   if (cached && Date.now() < cached.exp - 60_000) return cached.token;
-  if (!localStorage.getItem(ENABLED_KEY)) return null;
-  if (silentTried) return null;
-  silentTried = true;
-  try {
-    await loadGis();
-  } catch {
-    return null;
-  }
-  const token = await requestToken("");
-  if (token) {
-    const email = await fetchEmail(token);
-    set({ status: "signedIn", email: email ?? state.email });
-  } else {
-    set({ status: "needsReauth", email: state.email });
-  }
-  return token;
+  return null;
 }
 
 export function invalidateToken(): void {
   cached = null;
-  silentTried = false;
 }
 
 /** Интерактивный вход (по клику): при первом входе — экран согласия Google */
@@ -139,7 +125,6 @@ export async function login(): Promise<boolean> {
     return false;
   }
   localStorage.setItem(ENABLED_KEY, "1");
-  silentTried = false;
   const email = await fetchEmail(token);
   set({ status: "signedIn", email: email ?? state.email });
   return true;
@@ -156,7 +141,6 @@ export async function logout(): Promise<void> {
     }
   }
   cached = null;
-  silentTried = false;
   localStorage.removeItem(EMAIL_KEY);
   localStorage.removeItem(ENABLED_KEY);
   set({ status: "signedOut", email: null });

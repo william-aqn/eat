@@ -28,6 +28,7 @@ const ru = {
   statusSyncing: "Синхронизация…",
   statusError: "Ошибка синхронизации",
   statusOffline: "Офлайн — изменения сохраняются локально",
+  statusNeedsAuth: "Нажмите «Синхронизировать» в меню",
   ctrlEnterHint: "Ctrl+Enter — добавить",
   menu: "Меню",
   print: "Печать",

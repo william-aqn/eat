@@ -6,15 +6,20 @@ import { getSyncState, subscribeSync, type SyncStatus as Status } from "../sync"
 const DOT_CLASS: Record<Status, string> = {
   idle: "off",
   localOnly: "off",
+  needsAuth: "off",
   offline: "off",
   syncing: "busy",
   ok: "ok",
   error: "err"
 };
 
-const DOT_LABEL: Record<Status, "statusSynced" | "statusSyncing" | "statusError" | "statusOffline"> = {
+const DOT_LABEL: Record<
+  Status,
+  "statusSynced" | "statusSyncing" | "statusError" | "statusOffline" | "statusNeedsAuth"
+> = {
   idle: "statusSynced",
   localOnly: "statusSynced",
+  needsAuth: "statusNeedsAuth",
   offline: "statusOffline",
   syncing: "statusSyncing",
   ok: "statusSynced",

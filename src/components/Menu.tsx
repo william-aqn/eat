@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { Notice } from "../App";
-import { getAuthState, login, logout, subscribeAuth } from "../auth";
+import { getAccessToken, getAuthState, login, logout, subscribeAuth } from "../auth";
 import { LOCALES, setLocale, t, useLocale } from "../i18n";
 import { getCanInstall, promptInstall, subscribeInstall } from "../install";
 import { getEntriesSnapshot, importEntries } from "../store";
@@ -90,9 +90,13 @@ export default function Menu({ onNotice }: { onNotice: (n: Notice) => void }) {
                 role="menuitem"
                 onClick={() => {
                   setOpen(false);
-                  // напрямую, минуя debounce scheduleSync; повторный клик во время
-                  // синхронизации безопасен — sync() под мьютексом взводит rerun
-                  void sync();
+                  // токен живёт ~час и продлевается только по клику: если протух,
+                  // сначала вход (клик — жест пользователя, попап не заблокируют),
+                  // затем sync() напрямую, минуя debounce у scheduleSync
+                  void (async () => {
+                    if (!getAccessToken() && !(await login())) return;
+                    await sync();
+                  })();
                 }}
               >
                 {t("syncNow")}

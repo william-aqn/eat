@@ -14,7 +14,7 @@ export class HttpError extends Error {
 }
 
 async function driveFetch(url: string, init: RequestInit = {}, retry = true): Promise<Response> {
-  const token = await getAccessToken();
+  const token = getAccessToken();
   if (!token) throw new Error("not_signed_in");
   const r = await fetch(url, {
     ...init,

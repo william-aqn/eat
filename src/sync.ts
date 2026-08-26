@@ -7,7 +7,15 @@ import { refreshFromDb } from "./store";
 
 const FILE_NAME = "entries.json";
 
-export type SyncStatus = "idle" | "syncing" | "ok" | "error" | "offline" | "localOnly";
+export type SyncStatus =
+  | "idle"
+  | "syncing"
+  | "ok"
+  | "error"
+  | "offline"
+  | "localOnly"
+  /** вход выполнялся, но токен протух — нужен клик по «Синхронизировать» */
+  | "needsAuth";
 export type SyncState = { status: SyncStatus; lastSyncedAt?: number };
 
 let state: SyncState = { status: "idle" };
@@ -50,10 +58,10 @@ export async function sync(): Promise<void> {
     setState({ status: "offline" });
     return;
   }
-  const token = await getAccessToken();
+  const token = getAccessToken();
   if (!token) {
-    // needsReauth → нужен клик по «Войти заново»; signedOut → чисто локальный режим
-    setState({ status: getAuthState().status === "needsReauth" ? "error" : "localOnly" });
+    // попап здесь не открываем: продление токена — только по клику пользователя
+    setState({ status: getAuthState().status === "signedOut" ? "localOnly" : "needsAuth" });
     return;
   }
 

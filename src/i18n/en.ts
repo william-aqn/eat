@@ -26,6 +26,7 @@ const en = {
   statusSyncing: "Syncing…",
   statusError: "Sync error",
   statusOffline: "Offline — changes are saved locally",
+  statusNeedsAuth: "Tap «Sync now» in the menu to sync",
   ctrlEnterHint: "Ctrl+Enter — add",
   menu: "Menu",
   print: "Print",
