@@ -3,12 +3,14 @@ import type { Entry } from "../db";
 import { t, useLocale } from "../i18n";
 import { editEntry, removeEntry } from "../store";
 import { formatTime, fromLocalInput, toLocalInput } from "../ui/format";
+import { useAutoGrow } from "../ui/useAutoGrow";
 
 export default function EntryItem({ entry }: { entry: Entry }) {
   const locale = useLocale();
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(entry.text);
   const [at, setAt] = useState(() => toLocalInput(entry.at));
+  const taRef = useAutoGrow();
 
   function startEdit() {
     setText(entry.text);
@@ -29,7 +31,7 @@ export default function EntryItem({ entry }: { entry: Entry }) {
   if (editing) {
     return (
       <li className="entry editing">
-        <textarea value={text} rows={2} autoFocus onChange={(e) => setText(e.target.value)} />
+        <textarea ref={taRef} value={text} rows={2} autoFocus onChange={(e) => setText(e.target.value)} />
         <div className="form-row">
           <input
             type="datetime-local"

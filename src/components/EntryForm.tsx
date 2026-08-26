@@ -1,14 +1,15 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { t, useLocale } from "../i18n";
 import { addEntry } from "../store";
 import { fromLocalInput, toLocalInput } from "../ui/format";
+import { useAutoGrow } from "../ui/useAutoGrow";
 
 export default function EntryForm() {
   useLocale();
   const [text, setText] = useState("");
   const [at, setAt] = useState(() => toLocalInput(Date.now()));
   const [timeTouched, setTimeTouched] = useState(false);
-  const taRef = useRef<HTMLTextAreaElement>(null);
+  const taRef = useAutoGrow();
 
   async function submit() {
     if (!text.trim()) return;

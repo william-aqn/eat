@@ -263,8 +263,11 @@ button {
   background: none;
   color: var(--ink);
   font: inherit;
-  resize: vertical;
+  /* высоту ведёт useAutoGrow: растёт под текст до max-height, дальше скролл */
+  resize: none;
   min-height: 48px;
+  max-height: 240px;
+  overflow-y: auto;
   outline: none;
   padding: 2px;
 }
