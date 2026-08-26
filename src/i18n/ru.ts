@@ -15,6 +15,7 @@ const ru = {
   signIn: "Войти",
   signInTitle: "Войдите через Google, чтобы синхронизировать записи между устройствами",
   signOut: "Выйти",
+  syncNow: "Синхронизировать",
   signInAgain: "Войти заново",
   emptyState: "Пока пусто. Запишите первый приём пищи.",
   exportJson: "Экспорт JSON",
@@ -30,6 +31,7 @@ const ru = {
   ctrlEnterHint: "Ctrl+Enter — добавить",
   menu: "Меню",
   print: "Печать",
+  installApp: "Установить приложение",
   printedOn: "Распечатано",
   backToBlog: "На блог"
 } satisfies Dict;

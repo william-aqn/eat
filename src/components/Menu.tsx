@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { Notice } from "../App";
 import { getAuthState, login, logout, subscribeAuth } from "../auth";
 import { LOCALES, setLocale, t, useLocale } from "../i18n";
+import { getCanInstall, promptInstall, subscribeInstall } from "../install";
 import { getEntriesSnapshot, importEntries } from "../store";
 import { sync } from "../sync";
 import { exportJson, parseImportFile } from "../ui/format";
@@ -9,6 +10,7 @@ import { exportJson, parseImportFile } from "../ui/format";
 export default function Menu({ onNotice }: { onNotice: (n: Notice) => void }) {
   const locale = useLocale();
   const auth = useSyncExternalStore(subscribeAuth, getAuthState);
+  const canInstall = useSyncExternalStore(subscribeInstall, getCanInstall);
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   // input живёт вне выпадающей части: событие change не должно теряться при закрытии меню
@@ -88,6 +90,18 @@ export default function Menu({ onNotice }: { onNotice: (n: Notice) => void }) {
                 role="menuitem"
                 onClick={() => {
                   setOpen(false);
+                  // напрямую, минуя debounce scheduleSync; повторный клик во время
+                  // синхронизации безопасен — sync() под мьютексом взводит rerun
+                  void sync();
+                }}
+              >
+                {t("syncNow")}
+              </button>
+              <button
+                className="menu-item"
+                role="menuitem"
+                onClick={() => {
+                  setOpen(false);
                   void logout();
                 }}
               >
@@ -141,6 +155,18 @@ export default function Menu({ onNotice }: { onNotice: (n: Notice) => void }) {
           >
             {t("print")}
           </button>
+          {canInstall && (
+            <button
+              className="menu-item"
+              role="menuitem"
+              onClick={() => {
+                setOpen(false);
+                void promptInstall();
+              }}
+            >
+              {t("installApp")}
+            </button>
+          )}
         </div>
       )}
     </div>

@@ -13,6 +13,7 @@ const en = {
   signIn: "Sign in",
   signInTitle: "Sign in with Google to sync your entries between devices",
   signOut: "Sign out",
+  syncNow: "Sync now",
   signInAgain: "Sign in again",
   emptyState: "Nothing here yet. Log your first meal.",
   exportJson: "Export JSON",
@@ -28,6 +29,7 @@ const en = {
   ctrlEnterHint: "Ctrl+Enter — add",
   menu: "Menu",
   print: "Print",
+  installApp: "Install app",
   printedOn: "Printed",
   backToBlog: "To the blog"
 };
