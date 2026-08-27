@@ -684,4 +684,9 @@ input[type="date"] {
   .pentry-line {
     overflow-wrap: anywhere;
   }
+
+  /* запрещённое доктором зачёркиваем: на бумаге цветом не выделить */
+  .pentry-line.banned .pentry-text {
+    text-decoration: line-through;
+  }
 }

@@ -58,12 +58,16 @@ export default function PrintSheet({ entries, range }: { entries: Entry[]; range
                   {e.text
                     .split("\n")
                     .filter((line) => line.trim() !== "")
-                    .map((line, i) => (
-                      <div key={i} className="pentry-line">
-                        {forbiddenKeys.has(normalizeFood(line)) && "⊘ "}
-                        {line}
-                      </div>
-                    ))}
+                    .map((line, i) => {
+                      const banned = forbiddenKeys.has(normalizeFood(line));
+                      return (
+                        <div key={i} className={"pentry-line" + (banned ? " banned" : "")}>
+                          {/* знак вне зачёркивания: перечёркнутый ⊘ читается хуже */}
+                          {banned && <span aria-hidden="true">⊘ </span>}
+                          <span className="pentry-text">{line}</span>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
             ))}
