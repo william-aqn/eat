@@ -19,6 +19,23 @@ export function groupByDay(entries: Entry[]): { day: number; items: Entry[] }[] 
     .sort((a, b) => b.day - a.day);
 }
 
+export type PrintRange = { from: number; to: number };
+
+/**
+ * Группы для печати: диапазон дней (границы включительно) и хронологический
+ * порядок — старые дни первыми, внутри дня от завтрака к ужину. Благодаря этому
+ * листы можно «допечатывать»: новые записи всегда продолжают прошлые страницы.
+ */
+export function groupForPrint(
+  entries: Entry[],
+  range: PrintRange | null
+): { day: number; items: Entry[] }[] {
+  const groups = range
+    ? groupByDay(entries).filter((g) => g.day >= range.from && g.day <= range.to)
+    : groupByDay(entries);
+  return groups.reverse().map((g) => ({ day: g.day, items: [...g.items].reverse() }));
+}
+
 export function dayLabel(day: number, locale: string, todayText: string, yesterdayText: string): string {
   const today = dayStart(Date.now());
   if (day === today) return todayText;
@@ -45,6 +62,15 @@ export function dayLabelPrint(day: number, locale: string): string {
   }).format(new Date(day));
 }
 
+/** Короткая дата для шапки печати и подсказок: 27.08.2026 */
+export function formatDateShort(ms: number, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+  }).format(ms);
+}
+
 export function formatTime(ms: number, locale: string): string {
   return new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(ms);
 }
@@ -58,6 +84,19 @@ export function toLocalInput(ms: number): string {
 
 export function fromLocalInput(value: string): number {
   return new Date(value).getTime();
+}
+
+/** epoch ms → значение для <input type="date"> в локальном времени */
+export function toDateInput(ms: number): string {
+  const d = new Date(ms);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+/** «2026-08-27» → epoch ms локальной полуночи (new Date(str) дал бы полночь UTC) */
+export function fromDateInput(value: string): number {
+  const [y, m, d] = value.split("-").map(Number);
+  return new Date(y, m - 1, d).getTime();
 }
 
 /**

@@ -36,6 +36,10 @@ const ru = {
   ctrlEnterHint: "Ctrl+Enter — добавить",
   menu: "Меню",
   print: "Печать",
+  printFrom: "С даты",
+  printTo: "По дату",
+  printEntries: "Записей: {n}",
+  printLast: "Прошлая печать — по {date}",
   installApp: "Установить приложение",
   about: "О дневнике",
   printedOn: "Распечатано"

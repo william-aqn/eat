@@ -34,6 +34,10 @@ const en = {
   ctrlEnterHint: "Ctrl+Enter — add",
   menu: "Menu",
   print: "Print",
+  printFrom: "From date",
+  printTo: "To date",
+  printEntries: "Entries: {n}",
+  printLast: "Last printed through {date}",
   installApp: "Install app",
   about: "About the diary",
   printedOn: "Printed"

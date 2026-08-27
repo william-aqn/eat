@@ -9,7 +9,13 @@ import { getEntriesSnapshot, importEntries } from "../store";
 import { sync } from "../sync";
 import { exportJson, parseImportFile } from "../ui/format";
 
-export default function Menu({ onNotice }: { onNotice: (n: Notice) => void }) {
+export default function Menu({
+  onNotice,
+  onPrint
+}: {
+  onNotice: (n: Notice) => void;
+  onPrint: () => void;
+}) {
   const locale = useLocale();
   const auth = useSyncExternalStore(subscribeAuth, getAuthState);
   const canInstall = useSyncExternalStore(subscribeInstall, getCanInstall);
@@ -157,7 +163,7 @@ export default function Menu({ onNotice }: { onNotice: (n: Notice) => void }) {
             role="menuitem"
             onClick={() => {
               setOpen(false);
-              window.print();
+              onPrint();
             }}
           >
             {t("print")}
