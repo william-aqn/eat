@@ -664,7 +664,7 @@ input[type="date"],
 /* На бумагу идёт только .psheet (PrintSheet.tsx), экранный DOM скрыт целиком.
    Дни идут от старых к новым, чтобы листы можно было допечатывать к прошлым.
    Колонки заданы шириной — их число само подстраивается под ориентацию листа
-   (A4: портрет ≈ 3 колонки, альбом ≈ 4). Цвета задаём явно: тёмная тема не
+   (A4: портрет 2 колонки, альбом 3). Цвета задаём явно: тёмная тема не
    должна попасть на бумагу. */
 @page {
   margin: 12mm;
@@ -682,6 +682,16 @@ input[type="date"],
     display: block; /* flex-колонка мешает разбивке на страницы */
     background: #fff;
     color: #000;
+    min-height: 0; /* 100vh — приём экранной вёрстки (прижатый футер), на бумаге лишний */
+  }
+
+  /* #root на экране — флекс-колонка (прижатый футер). На печати это ломает
+     разбивку мультиколонки: Chrome печатал ПУСТЫЕ листы между заполненными
+     (замер print-to-pdf: неделя записей → 2 листа при одном с текстом,
+     70 дней → 15 листов при пяти). Мультиколонка должна фрагментироваться
+     в обычном блочном потоке — этого правила достаточно, чтобы пустых не было. */
+  #root {
+    display: block;
   }
 
   .app,
@@ -692,43 +702,46 @@ input[type="date"],
   .psheet {
     display: block;
     /* моноширинный шрифт темы слишком широк для узких колонок — на бумаге обычный */
-    font: 9pt/1.35 "Segoe UI", Arial, Helvetica, sans-serif;
+    font: 11pt/1.4 "Segoe UI", Arial, Helvetica, sans-serif;
     color: #000;
   }
 
   .psheet-title {
     margin: 0;
-    font-size: 14pt;
+    font-size: 17pt;
   }
 
   .psheet-meta {
-    margin: 1mm 0 3mm;
-    font-size: 8pt;
+    margin: 1mm 0 4mm;
+    font-size: 9pt;
     color: #555;
   }
 
   .psheet-forbidden {
-    margin: 0 0 4mm;
+    margin: 0 0 5mm;
     border: 1px solid #999;
-    padding: 1.5mm 2mm;
+    padding: 2mm 2.5mm;
+    font-size: 10pt;
   }
 
   .pcolumns {
-    columns: 55mm;
-    column-gap: 7mm;
+    /* ширина колонки под 11pt: ~45 знаков в строке. На A4 портрет выходит
+       2 колонки, альбом — 3 */
+    columns: 82mm;
+    column-gap: 8mm;
     column-rule: 1px dotted #bbb;
     column-fill: auto; /* колонки заполняются по порядку, как газета */
   }
 
   .pday {
-    margin: 0 0 4mm;
+    margin: 0 0 5mm;
   }
 
   .pday-label {
-    margin: 0 0 1mm;
-    padding-bottom: 0.5mm;
+    margin: 0 0 1.5mm;
+    padding-bottom: 0.8mm;
     border-bottom: 1px solid #999;
-    font-size: 9pt;
+    font-size: 11.5pt;
     font-weight: 700;
     break-after: avoid; /* заголовок дня не отрывается от записей */
     break-inside: avoid;
@@ -736,9 +749,12 @@ input[type="date"],
 
   .pentry {
     display: grid;
-    grid-template-columns: max-content 1fr;
-    gap: 0 2mm;
-    padding: 0.8mm 0;
+    /* колонка времени фиксированной ширины: при max-content каждая запись
+       считала её сама, и текст начинался на разном отступе — строчки «плыли».
+       17mm хватает на «≈ 1200 ккал» второй строкой (замерено: 15.3mm) */
+    grid-template-columns: 17mm 1fr;
+    gap: 0 3mm;
+    padding: 1.2mm 0;
     break-inside: avoid; /* запись не разрезается между колонками/страницами */
   }
 
@@ -747,14 +763,14 @@ input[type="date"],
   }
 
   .pentry-time {
-    font-size: 8pt;
-    color: #444;
+    font-size: 10pt;
+    color: #333;
   }
 
   /* ИИ-оценка калорий — под временем, вторым рядом */
   .pentry-kcal {
     display: block;
-    font-size: 7pt;
+    font-size: 8pt;
     color: #777;
   }
 
