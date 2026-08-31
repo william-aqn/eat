@@ -41,7 +41,6 @@ const en = {
   printLast: "Last printed through {date}",
   installApp: "Install app",
   about: "About the diary",
-  printedOn: "Printed",
   aiSettings: "AI calorie estimate",
   aiKeyLabel: "OpenRouter key",
   aiModelLabel: "Model",

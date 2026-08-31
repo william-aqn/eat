@@ -707,14 +707,8 @@ input[type="date"],
   }
 
   .psheet-title {
-    margin: 0;
+    margin: 0 0 4mm;
     font-size: 17pt;
-  }
-
-  .psheet-meta {
-    margin: 1mm 0 4mm;
-    font-size: 9pt;
-    color: #555;
   }
 
   .psheet-forbidden {

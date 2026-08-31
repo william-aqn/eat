@@ -43,7 +43,6 @@ const ru = {
   printLast: "Прошлая печать — по {date}",
   installApp: "Установить приложение",
   about: "О дневнике",
-  printedOn: "Распечатано",
   aiSettings: "ИИ-оценка калорий",
   aiKeyLabel: "Ключ OpenRouter",
   aiModelLabel: "Модель",

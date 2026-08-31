@@ -1,16 +1,9 @@
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
-import { flushSync } from "react-dom";
+import { useMemo, useSyncExternalStore } from "react";
 import type { Entry } from "../db";
 import { normalizeFood } from "../food";
 import { getForbiddenKeys, getForbiddenSnapshot, subscribeForbidden } from "../forbidden";
 import { t, useLocale } from "../i18n";
-import {
-  dayLabelPrint,
-  formatDateShort,
-  formatTime,
-  groupForPrint,
-  type PrintRange
-} from "../ui/format";
+import { dayLabelPrint, formatTime, groupForPrint, type PrintRange } from "../ui/format";
 
 /**
  * Печатная версия дневника: на экране скрыта (.psheet), в @media print видна
@@ -21,28 +14,11 @@ export default function PrintSheet({ entries, range }: { entries: Entry[]; range
   const forbidden = useSyncExternalStore(subscribeForbidden, getForbiddenSnapshot);
   const forbiddenKeys = useSyncExternalStore(subscribeForbidden, getForbiddenKeys);
 
-  // Перед печатью синхронно перерисовываем, чтобы «Распечатано: …» было актуальным
-  const [, bump] = useState(0);
-  useEffect(() => {
-    const onBeforePrint = () => flushSync(() => bump((x) => x + 1));
-    window.addEventListener("beforeprint", onBeforePrint);
-    return () => window.removeEventListener("beforeprint", onBeforePrint);
-  }, []);
-
   const groups = useMemo(() => groupForPrint(entries, range), [entries, range]);
 
   return (
     <div className="psheet">
       <h1 className="psheet-title">{t("appTitle")}</h1>
-      <p className="psheet-meta">
-        {groups.length > 0 && (
-          <>
-            {formatDateShort(groups[0].day, locale)} —{" "}
-            {formatDateShort(groups[groups.length - 1].day, locale)} ·{" "}
-          </>
-        )}
-        {t("printedOn")}: {new Date().toLocaleString(locale)}
-      </p>
       {forbidden.length > 0 && (
         <p className="psheet-forbidden">
           <strong>{t("forbiddenTitle")}:</strong> {forbidden.map((f) => f.text).join(", ")}
