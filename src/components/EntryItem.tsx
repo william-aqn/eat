@@ -1,17 +1,17 @@
 import { useState, useSyncExternalStore } from "react";
 import type { Entry } from "../db";
 import { t, useLocale } from "../i18n";
-import { getForbiddenKeys, normalizeFood, subscribeForbidden, toggleForbidden } from "../forbidden";
+import { normalizeFood } from "../food";
+import { getForbiddenKeys, subscribeForbidden, toggleForbidden } from "../forbidden";
 import { editEntry, removeEntry } from "../store";
 import { formatTime, fromLocalInput, toLocalInput } from "../ui/format";
-import { useAutoGrow } from "../ui/useAutoGrow";
+import FoodInput from "./FoodInput";
 
 export default function EntryItem({ entry }: { entry: Entry }) {
   const locale = useLocale();
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(entry.text);
   const [at, setAt] = useState(() => toLocalInput(entry.at));
-  const taRef = useAutoGrow();
   const forbiddenKeys = useSyncExternalStore(subscribeForbidden, getForbiddenKeys);
 
   function startEdit() {
@@ -33,7 +33,7 @@ export default function EntryItem({ entry }: { entry: Entry }) {
   if (editing) {
     return (
       <li className="entry editing">
-        <textarea ref={taRef} value={text} rows={2} autoFocus onChange={(e) => setText(e.target.value)} />
+        <FoodInput value={text} onChange={setText} onSubmit={() => void save()} autoFocus />
         <div className="form-row">
           <input
             type="datetime-local"

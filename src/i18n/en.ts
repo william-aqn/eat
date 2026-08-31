@@ -13,6 +13,7 @@ const en = {
   forbid: "Mark as forbidden",
   allowAgain: "Allow again",
   forbiddenTitle: "Forbidden foods",
+  suggestLabel: "Already in the diary",
   signIn: "Sign in",
   signInTitle: "Sign in with Google to sync your entries between devices",
   signOut: "Sign out",

@@ -276,6 +276,56 @@ button {
   color: var(--muted);
 }
 
+/* Автоподсказка: список ранее записанной еды под полем ввода */
+.suggest-wrap {
+  position: relative;
+}
+
+.suggest {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  z-index: 20;
+  max-height: 210px;
+  overflow-y: auto;
+  margin: 2px 0 0;
+  padding: 4px;
+  list-style: none;
+  /* --card полупрозрачный: сквозь выпадающий список просвечивал бы текст */
+  background: var(--bg);
+  border: 1px dashed var(--line);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.45);
+}
+
+.suggest-item {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 7px 8px;
+  font-size: 14px;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.suggest-item.active,
+.suggest-item:hover {
+  background: var(--btn-bg);
+}
+
+.suggest-item.banned {
+  color: var(--danger);
+}
+
+.suggest-text {
+  flex: 1;
+}
+
+.suggest-ban {
+  flex: none;
+  font-size: 13px;
+}
+
 .form-row {
   display: flex;
   align-items: center;

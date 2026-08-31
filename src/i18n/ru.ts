@@ -15,6 +15,7 @@ const ru = {
   forbid: "Больше не кушать",
   allowAgain: "Разрешить снова",
   forbiddenTitle: "Запрещённые продукты",
+  suggestLabel: "Уже было в дневнике",
   signIn: "Войти",
   signInTitle: "Войдите через Google, чтобы синхронизировать записи между устройствами",
   signOut: "Выйти",

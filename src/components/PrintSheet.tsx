@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { flushSync } from "react-dom";
 import type { Entry } from "../db";
-import { getForbiddenKeys, getForbiddenSnapshot, normalizeFood, subscribeForbidden } from "../forbidden";
+import { normalizeFood } from "../food";
+import { getForbiddenKeys, getForbiddenSnapshot, subscribeForbidden } from "../forbidden";
 import { t, useLocale } from "../i18n";
 import {
   dayLabelPrint,

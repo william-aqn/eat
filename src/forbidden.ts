@@ -1,15 +1,8 @@
 import * as db from "./db";
 import type { ForbiddenItem } from "./db";
+import { cleanFood, normalizeFood } from "./food";
 import { planImport } from "./merge";
 import { notifyMutate } from "./store";
-
-/**
- * Нормализация названия — она же id продукта: «Салат  Мимоза» и «салат мимоза»
- * считаются одним продуктом, поэтому пометка с разных устройств сливается сама.
- */
-export function normalizeFood(text: string): string {
-  return text.trim().toLowerCase().replace(/\s+/g, " ");
-}
 
 let snapshot: ForbiddenItem[] = [];
 let keys: ReadonlySet<string> = new Set();
@@ -53,7 +46,7 @@ export async function markForbidden(text: string): Promise<void> {
   if (cur && !cur.deleted) return;
   await db.putForbidden({
     id,
-    text: text.trim().replace(/\s+/g, " "),
+    text: cleanFood(text),
     updatedAt: Date.now(),
     deleted: 0
   });
