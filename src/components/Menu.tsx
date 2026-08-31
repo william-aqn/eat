@@ -11,10 +11,12 @@ import { exportJson, parseImportFile } from "../ui/format";
 
 export default function Menu({
   onNotice,
-  onPrint
+  onPrint,
+  onAiSettings
 }: {
   onNotice: (n: Notice) => void;
   onPrint: () => void;
+  onAiSettings: () => void;
 }) {
   const locale = useLocale();
   const auth = useSyncExternalStore(subscribeAuth, getAuthState);
@@ -167,6 +169,16 @@ export default function Menu({
             }}
           >
             {t("print")}
+          </button>
+          <button
+            className="menu-item"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false);
+              onAiSettings();
+            }}
+          >
+            {t("aiSettings")}
           </button>
           {canInstall && (
             <button

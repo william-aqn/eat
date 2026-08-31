@@ -43,7 +43,15 @@ const ru = {
   printLast: "Прошлая печать — по {date}",
   installApp: "Установить приложение",
   about: "О дневнике",
-  printedOn: "Распечатано"
+  printedOn: "Распечатано",
+  aiSettings: "ИИ-оценка калорий",
+  aiKeyLabel: "Ключ OpenRouter",
+  aiModelLabel: "Модель",
+  aiKeyHint: "Хранится в файле синхронизации на вашем Google Диске (base64).",
+  aiGetKey: "Получить ключ",
+  aiEstimate: "Оценить калории (ИИ)",
+  aiError: "Не удалось оценить калории — проверьте ключ, модель и сеть",
+  kcalApprox: "≈ {n} ккал"
 } satisfies Dict;
 
 export default ru;

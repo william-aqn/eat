@@ -5,10 +5,12 @@ import SyncStatus from "./SyncStatus";
 
 export default function Header({
   onNotice,
-  onPrint
+  onPrint,
+  onAiSettings
 }: {
   onNotice: (n: Notice) => void;
   onPrint: () => void;
+  onAiSettings: () => void;
 }) {
   useLocale();
   return (
@@ -16,7 +18,7 @@ export default function Header({
       <h1>{t("appTitle")}</h1>
       <div className="header-right">
         <SyncStatus />
-        <Menu onNotice={onNotice} onPrint={onPrint} />
+        <Menu onNotice={onNotice} onPrint={onPrint} onAiSettings={onAiSettings} />
       </div>
     </header>
   );

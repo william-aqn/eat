@@ -41,7 +41,15 @@ const en = {
   printLast: "Last printed through {date}",
   installApp: "Install app",
   about: "About the diary",
-  printedOn: "Printed"
+  printedOn: "Printed",
+  aiSettings: "AI calorie estimate",
+  aiKeyLabel: "OpenRouter key",
+  aiModelLabel: "Model",
+  aiKeyHint: "Stored in the sync file on your Google Drive (base64).",
+  aiGetKey: "Get a key",
+  aiEstimate: "Estimate calories (AI)",
+  aiError: "Could not estimate calories — check the key, model and connection",
+  kcalApprox: "≈ {n} kcal"
 };
 
 export type Dict = typeof en;

@@ -1,10 +1,12 @@
-import type { Entry, ForbiddenItem } from "../db";
+import type { Entry, ForbiddenItem, SettingItem } from "../db";
 
-/** Формат файла синхронизации в облаке; forbidden необязателен для старых файлов */
+/** Формат файла синхронизации в облаке; forbidden/settings необязательны для старых файлов */
 export type SyncFile = {
   version: 1;
   entries: Entry[];
   forbidden?: ForbiddenItem[];
+  /** настройки приложения; значения в base64, см. codec.ts */
+  settings?: SettingItem[];
 };
 
 /**

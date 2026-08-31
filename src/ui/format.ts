@@ -126,7 +126,14 @@ export function parseImportFile(text: string): {
     ) {
       const updatedAt =
         typeof r.updatedAt === "number" && Number.isFinite(r.updatedAt) ? r.updatedAt : r.at;
-      entries.push({ id: r.id, text: r.text, at: r.at, updatedAt, deleted: r.deleted ? 1 : 0 });
+      entries.push({
+        id: r.id,
+        text: r.text,
+        at: r.at,
+        updatedAt,
+        deleted: r.deleted ? 1 : 0,
+        ...(typeof r.kcal === "number" && Number.isFinite(r.kcal) ? { kcal: r.kcal } : {})
+      });
     } else {
       skipped++;
     }

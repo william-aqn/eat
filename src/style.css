@@ -337,7 +337,9 @@ button {
 }
 
 input[type="datetime-local"],
-input[type="date"] {
+input[type="date"],
+.dialog input[type="text"],
+.dialog input[type="password"] {
   max-width: 100%;
   border: 1px solid var(--line);
   background: var(--bg);
@@ -346,6 +348,13 @@ input[type="date"] {
   font: inherit;
   font-size: 13px;
   color-scheme: inherit;
+}
+
+/* текстовые поля диалога занимают остаток строки после подписи */
+.dialog-row input[type="text"],
+.dialog-row input[type="password"] {
+  flex: 1;
+  min-width: 0;
 }
 
 .form-row .spacer {
@@ -394,6 +403,13 @@ input[type="date"] {
   color: var(--muted);
   font-size: 13px;
   flex: none;
+}
+
+/* ИИ-оценка калорийности рядом со временем */
+.entry-kcal {
+  flex: none;
+  font-size: 12px;
+  color: var(--muted);
 }
 
 .entry-text {
@@ -542,6 +558,10 @@ input[type="date"] {
   margin: 2px 0 0;
   font-size: 12px;
   color: var(--muted);
+}
+
+.dialog-hint a {
+  color: var(--accent);
 }
 
 .dialog .form-row {
@@ -729,6 +749,13 @@ input[type="date"] {
   .pentry-time {
     font-size: 8pt;
     color: #444;
+  }
+
+  /* ИИ-оценка калорий — под временем, вторым рядом */
+  .pentry-kcal {
+    display: block;
+    font-size: 7pt;
+    color: #777;
   }
 
   .pentry-line {

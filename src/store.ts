@@ -58,7 +58,18 @@ export async function addEntry(text: string, at: number): Promise<void> {
 export async function editEntry(id: string, patch: { text?: string; at?: number }): Promise<void> {
   const cur = await db.getEntry(id);
   if (!cur || cur.deleted) return;
-  await db.putEntry({ ...cur, ...patch, updatedAt: Date.now() });
+  const next: Entry = { ...cur, ...patch, updatedAt: Date.now() };
+  // текст изменился — старая ИИ-оценка калорий относится уже не к нему
+  if (patch.text !== undefined && patch.text !== cur.text) delete next.kcal;
+  await db.putEntry(next);
+  await afterMutate();
+}
+
+/** ИИ-оценка калорийности; хранится в записи и синхронизируется вместе с ней */
+export async function setEntryKcal(id: string, kcal: number): Promise<void> {
+  const cur = await db.getEntry(id);
+  if (!cur || cur.deleted) return;
+  await db.putEntry({ ...cur, kcal, updatedAt: Date.now() });
   await afterMutate();
 }
 

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { flushSync } from "react-dom";
+import AiDialog from "./components/AiDialog";
 import DayGroup from "./components/DayGroup";
 import EntryForm from "./components/EntryForm";
 import Footer from "./components/Footer";
@@ -25,6 +26,9 @@ export default function App() {
   // Разовые уведомления (результат импорта и т.п.)
   const [notice, setNotice] = useState<Notice | null>(null);
 
+  // Настройки ИИ-оценки калорий (ключ OpenRouter и модель)
+  const [aiOpen, setAiOpen] = useState(false);
+
   // Печать: из меню — диалог выбора диапазона дней; после печати диапазон
   // сбрасывается, чтобы Ctrl+P предсказуемо печатал весь дневник
   const [printOpen, setPrintOpen] = useState(false);
@@ -47,7 +51,11 @@ export default function App() {
   return (
     <>
       <div className="app">
-        <Header onNotice={setNotice} onPrint={() => setPrintOpen(true)} />
+        <Header
+          onNotice={setNotice}
+          onPrint={() => setPrintOpen(true)}
+          onAiSettings={() => setAiOpen(true)}
+        />
         {notice && (
           <div
             className={"notice" + (notice.tone === "ok" ? " ok" : "")}
@@ -62,11 +70,14 @@ export default function App() {
         {groups.length === 0 ? (
           <p className="empty">{t("emptyState")}</p>
         ) : (
-          groups.map((g) => <DayGroup key={g.day} day={g.day} items={g.items} />)
+          groups.map((g) => (
+            <DayGroup key={g.day} day={g.day} items={g.items} onNotice={setNotice} />
+          ))
         )}
         {printOpen && (
           <PrintDialog entries={entries} onClose={() => setPrintOpen(false)} onPrint={printRangeNow} />
         )}
+        {aiOpen && <AiDialog onClose={() => setAiOpen(false)} />}
       </div>
       <PrintSheet entries={entries} range={printRange} />
       <Footer />

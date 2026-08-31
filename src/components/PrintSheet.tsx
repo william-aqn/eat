@@ -54,7 +54,12 @@ export default function PrintSheet({ entries, range }: { entries: Entry[]; range
             <h2 className="pday-label">{dayLabelPrint(g.day, locale)}</h2>
             {g.items.map((e) => (
               <div key={e.id} className="pentry">
-                <time className="pentry-time">{formatTime(e.at, locale)}</time>
+                <time className="pentry-time">
+                  {formatTime(e.at, locale)}
+                  {typeof e.kcal === "number" && (
+                    <span className="pentry-kcal">{t("kcalApprox", { n: e.kcal })}</span>
+                  )}
+                </time>
                 <div>
                   {e.text
                     .split("\n")

@@ -4,6 +4,7 @@ import { refreshForbiddenFromDb } from "./forbidden";
 import { mergeEntries, purgeOldTombstones, TOMBSTONE_TTL_MS } from "./merge";
 import { driveAppData, HttpError } from "./remote/driveAppData";
 import type { SyncFile } from "./remote/types";
+import { refreshSettingsFromDb } from "./settings";
 import { refreshFromDb } from "./store";
 
 const FILE_NAME = "entries.json";
@@ -97,10 +98,14 @@ export async function sync(): Promise<void> {
     const { merged, remoteWins, pushNeeded } = mergeEntries(local, remote.entries ?? []);
     if (remoteWins.length) await db.applyRemoteWins(remoteWins);
 
-    // запрещённые продукты идут тем же LWW-проходом, что и записи
+    // запрещённые продукты и настройки идут тем же LWW-проходом, что и записи
     const localForbidden = await db.allForbidden(true);
     const fRes = mergeEntries(localForbidden, remote.forbidden ?? []);
     if (fRes.remoteWins.length) await db.applyForbiddenWins(fRes.remoteWins);
+
+    const localSettings = await db.allSettings(true);
+    const sRes = mergeEntries(localSettings, remote.settings ?? []);
+    if (sRes.remoteWins.length) await db.applySettingsWins(sRes.remoteWins);
 
     const now = Date.now();
     const { kept, purgedCount } = purgeOldTombstones(merged, now);
@@ -108,13 +113,30 @@ export async function sync(): Promise<void> {
       fRes.merged,
       now
     );
+    const { kept: keptSettings, purgedCount: purgedSettings } = purgeOldTombstones(
+      sRes.merged,
+      now
+    );
     await db.purgeTombstonesBefore(now - TOMBSTONE_TTL_MS);
     await db.purgeForbiddenTombstonesBefore(now - TOMBSTONE_TTL_MS);
+    await db.purgeSettingsTombstonesBefore(now - TOMBSTONE_TTL_MS);
 
-    const file: SyncFile = { version: 1, entries: kept, forbidden: keptForbidden };
+    const file: SyncFile = {
+      version: 1,
+      entries: kept,
+      forbidden: keptForbidden,
+      settings: keptSettings
+    };
     if (!fileId) {
       fileId = await driveAppData.create(FILE_NAME, file);
-    } else if (pushNeeded || fRes.pushNeeded || purgedCount > 0 || purgedForbidden > 0) {
+    } else if (
+      pushNeeded ||
+      fRes.pushNeeded ||
+      sRes.pushNeeded ||
+      purgedCount > 0 ||
+      purgedForbidden > 0 ||
+      purgedSettings > 0
+    ) {
       await driveAppData.update(fileId, file);
     }
 
@@ -123,6 +145,7 @@ export async function sync(): Promise<void> {
     await db.setMeta("lastSyncedAt", finishedAt);
     if (remoteWins.length) await refreshFromDb();
     if (fRes.remoteWins.length) await refreshForbiddenFromDb();
+    if (sRes.remoteWins.length) await refreshSettingsFromDb();
     setState({ status: "ok", lastSyncedAt: finishedAt, dirty: false });
   } catch (e) {
     console.warn("sync failed:", e);

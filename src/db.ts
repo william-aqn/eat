@@ -9,6 +9,8 @@ export type Entry = {
   updatedAt: number;
   /** tombstone: запись удалена, text затёрт */
   deleted: 0 | 1;
+  /** ИИ-оценка калорийности, ккал; затирается при правке текста */
+  kcal?: number;
 };
 
 /** Продукт, который доктор запретил; id — нормализованное название (см. normalizeFood) */
@@ -20,14 +22,26 @@ export type ForbiddenItem = {
   deleted: 0 | 1;
 };
 
+/**
+ * Синхронизируемая настройка (ключ OpenRouter, модель и т.п.);
+ * text — значение в base64 (см. codec.ts), пустое значение = tombstone
+ */
+export type SettingItem = {
+  id: string;
+  text: string;
+  updatedAt: number;
+  deleted: 0 | 1;
+};
+
 interface DiarySchema extends DBSchema {
   entries: { key: string; value: Entry; indexes: { "by-at": number } };
   forbidden: { key: string; value: ForbiddenItem };
+  settings: { key: string; value: SettingItem };
   meta: { key: string; value: unknown };
 }
 
-/** v2: store «forbidden» — запрещённые продукты */
-const DB_VERSION = 2;
+/** v2: store «forbidden» — запрещённые продукты; v3: store «settings» */
+const DB_VERSION = 3;
 
 let dbp: Promise<IDBPDatabase<DiarySchema>> | null = null;
 
@@ -41,6 +55,9 @@ function db() {
       }
       if (oldVersion < 2) {
         d.createObjectStore("forbidden", { keyPath: "id" });
+      }
+      if (oldVersion < 3) {
+        d.createObjectStore("settings", { keyPath: "id" });
       }
     }
   });
@@ -132,6 +149,43 @@ export async function purgeForbiddenTombstonesBefore(cutoff: number): Promise<vo
   const tx = (await db()).transaction("forbidden", "readwrite");
   for (const f of await tx.store.getAll()) {
     if (f.deleted && f.updatedAt < cutoff) await tx.store.delete(f.id);
+  }
+  await tx.done;
+}
+
+export async function allSettings(includeDeleted = false): Promise<SettingItem[]> {
+  const rows = await (await db()).getAll("settings");
+  return includeDeleted ? rows : rows.filter((s) => !s.deleted);
+}
+
+export async function getSetting(id: string): Promise<SettingItem | undefined> {
+  return (await db()).get("settings", id);
+}
+
+export async function putSetting(s: SettingItem): Promise<void> {
+  await (await db()).put("settings", s);
+}
+
+/** Как applyRemoteWins, но для настроек */
+export async function applySettingsWins(wins: SettingItem[]): Promise<void> {
+  const tx = (await db()).transaction("settings", "readwrite");
+  for (const w of wins) {
+    const cur = await tx.store.get(w.id);
+    if (
+      !cur ||
+      cur.updatedAt < w.updatedAt ||
+      (cur.updatedAt === w.updatedAt && w.deleted && !cur.deleted)
+    ) {
+      await tx.store.put(w);
+    }
+  }
+  await tx.done;
+}
+
+export async function purgeSettingsTombstonesBefore(cutoff: number): Promise<void> {
+  const tx = (await db()).transaction("settings", "readwrite");
+  for (const s of await tx.store.getAll()) {
+    if (s.deleted && s.updatedAt < cutoff) await tx.store.delete(s.id);
   }
   await tx.done;
 }

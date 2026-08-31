@@ -1,18 +1,30 @@
 import { useState, useSyncExternalStore } from "react";
+import { estimateCalories } from "../ai";
+import type { Notice } from "../App";
 import type { Entry } from "../db";
 import { t, useLocale } from "../i18n";
 import { normalizeFood } from "../food";
 import { getForbiddenKeys, subscribeForbidden, toggleForbidden } from "../forbidden";
-import { editEntry, removeEntry } from "../store";
+import { AI_KEY, AI_MODEL, getSettingsSnapshot, subscribeSettings } from "../settings";
+import { editEntry, removeEntry, setEntryKcal } from "../store";
 import { formatTime, fromLocalInput, toLocalInput } from "../ui/format";
 import FoodInput from "./FoodInput";
 
-export default function EntryItem({ entry }: { entry: Entry }) {
+export default function EntryItem({
+  entry,
+  onNotice
+}: {
+  entry: Entry;
+  onNotice: (n: Notice) => void;
+}) {
   const locale = useLocale();
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(entry.text);
   const [at, setAt] = useState(() => toLocalInput(entry.at));
   const forbiddenKeys = useSyncExternalStore(subscribeForbidden, getForbiddenKeys);
+  const settings = useSyncExternalStore(subscribeSettings, getSettingsSnapshot);
+  const aiKey = settings.get(AI_KEY) ?? "";
+  const [estimating, setEstimating] = useState(false);
 
   function startEdit() {
     setText(entry.text);
@@ -28,6 +40,22 @@ export default function EntryItem({ entry }: { entry: Entry }) {
 
   async function remove() {
     if (confirm(t("deleteConfirm"))) await removeEntry(entry.id);
+  }
+
+  async function estimate() {
+    setEstimating(true);
+    try {
+      const kcal = await estimateCalories(entry.text, {
+        apiKey: aiKey,
+        model: settings.get(AI_MODEL)
+      });
+      await setEntryKcal(entry.id, kcal);
+    } catch (e) {
+      console.warn("calorie estimate failed:", e);
+      onNotice({ key: "aiError", tone: "warn" });
+    } finally {
+      setEstimating(false);
+    }
   }
 
   if (editing) {
@@ -61,8 +89,22 @@ export default function EntryItem({ entry }: { entry: Entry }) {
       {/* время встроено в линию-разделитель, текст записи занимает всю ширину */}
       <div className="entry-head">
         <time className="entry-time">{formatTime(entry.at, locale)}</time>
+        {typeof entry.kcal === "number" && (
+          <span className="entry-kcal">{t("kcalApprox", { n: entry.kcal })}</span>
+        )}
         <span className="entry-rule" aria-hidden="true" />
         <div className="entry-actions">
+          {aiKey && (
+            <button
+              className="icon-btn"
+              aria-label={t("aiEstimate")}
+              title={t("aiEstimate")}
+              disabled={estimating}
+              onClick={() => void estimate()}
+            >
+              {estimating ? "…" : "≈"}
+            </button>
+          )}
           <button className="icon-btn" aria-label={t("edit")} title={t("edit")} onClick={startEdit}>
             ✎
           </button>
