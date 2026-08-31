@@ -554,6 +554,13 @@ input[type="date"],
   font-size: 14px;
 }
 
+.dialog input[type="checkbox"] {
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
 .dialog-hint {
   margin: 2px 0 0;
   font-size: 12px;

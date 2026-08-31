@@ -41,6 +41,7 @@ const ru = {
   printTo: "По дату",
   printEntries: "Записей: {n}",
   printLast: "Прошлая печать — по {date}",
+  printKcal: "Печатать калории",
   installApp: "Установить приложение",
   about: "О дневнике",
   aiSettings: "ИИ-оценка калорий",

@@ -9,7 +9,15 @@ import { dayLabelPrint, formatTime, groupForPrint, type PrintRange } from "../ui
  * Печатная версия дневника: на экране скрыта (.psheet), в @media print видна
  * только она. Дни идут от старых к новым — листы можно допечатывать к прошлым.
  */
-export default function PrintSheet({ entries, range }: { entries: Entry[]; range: PrintRange | null }) {
+export default function PrintSheet({
+  entries,
+  range,
+  kcal
+}: {
+  entries: Entry[];
+  range: PrintRange | null;
+  kcal: boolean;
+}) {
   const locale = useLocale();
   const forbidden = useSyncExternalStore(subscribeForbidden, getForbiddenSnapshot);
   const forbiddenKeys = useSyncExternalStore(subscribeForbidden, getForbiddenKeys);
@@ -32,7 +40,7 @@ export default function PrintSheet({ entries, range }: { entries: Entry[]; range
               <div key={e.id} className="pentry">
                 <time className="pentry-time">
                   {formatTime(e.at, locale)}
-                  {typeof e.kcal === "number" && (
+                  {kcal && typeof e.kcal === "number" && (
                     <span className="pentry-kcal">{t("kcalApprox", { n: e.kcal })}</span>
                   )}
                 </time>

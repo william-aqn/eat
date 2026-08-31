@@ -12,6 +12,14 @@ import {
 /** yyyy-mm-dd последнего напечатанного дня — следующая печать продолжит с завтрашнего */
 const LS_PRINTED_TO = "fd.printedTo";
 
+/** Печатать ли ИИ-оценку калорий */
+const LS_PRINT_KCAL = "fd.printKcal";
+
+/** По умолчанию калории печатаются — так дневник и печатался до появления галочки */
+export function readPrintKcal(): boolean {
+  return localStorage.getItem(LS_PRINT_KCAL) !== "0";
+}
+
 function readPrintedTo(): string | null {
   const v = localStorage.getItem(LS_PRINTED_TO);
   return v && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null;
@@ -30,7 +38,7 @@ export default function PrintDialog({
   onClose
 }: {
   entries: Entry[];
-  onPrint: (range: PrintRange) => void;
+  onPrint: (range: PrintRange, withKcal: boolean) => void;
   onClose: () => void;
 }) {
   const locale = useLocale();
@@ -43,6 +51,7 @@ export default function PrintDialog({
     return toDateInput(Number.isFinite(oldest) ? dayStart(oldest) : today);
   });
   const [toStr, setToStr] = useState(() => toDateInput(Date.now()));
+  const [withKcal, setWithKcal] = useState(readPrintKcal);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -66,7 +75,8 @@ export default function PrintDialog({
   function submit() {
     if (!valid || count === 0) return;
     localStorage.setItem(LS_PRINTED_TO, toStr);
-    onPrint({ from: fromMs, to: toMs });
+    localStorage.setItem(LS_PRINT_KCAL, withKcal ? "1" : "0");
+    onPrint({ from: fromMs, to: toMs }, withKcal);
   }
 
   return (
@@ -85,6 +95,14 @@ export default function PrintDialog({
         <label className="dialog-row">
           <span>{t("printTo")}</span>
           <input type="date" value={toStr} onChange={(e) => setToStr(e.target.value)} />
+        </label>
+        <label className="dialog-row">
+          <span>{t("printKcal")}</span>
+          <input
+            type="checkbox"
+            checked={withKcal}
+            onChange={(e) => setWithKcal(e.target.checked)}
+          />
         </label>
         {printedTo && (
           <p className="dialog-hint">

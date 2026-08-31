@@ -39,6 +39,7 @@ const en = {
   printTo: "To date",
   printEntries: "Entries: {n}",
   printLast: "Last printed through {date}",
+  printKcal: "Print calories",
   installApp: "Install app",
   about: "About the diary",
   aiSettings: "AI calorie estimate",
